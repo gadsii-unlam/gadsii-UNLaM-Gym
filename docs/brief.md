@@ -1,6 +1,6 @@
 # Brief de Producto
 
-TP 1:
+V1: Primera entrega, sin cambios.
 
 2. Segmento elegido
 El segmento seleccionado de la Universidad Nacional de La Matanza (UNLaM) está compuesto por los alumnos o miembros de la comunidad que utilizan o tienen interés en utilizar el gimnasio de la Universidad, considerando principalmente a aquellos que realizan actividades de entrenamiento físico y requieren organizar y realizar un seguimiento de sus rutinas y concurrencia.
