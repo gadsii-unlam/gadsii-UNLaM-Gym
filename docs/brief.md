@@ -2,10 +2,18 @@
 
 V1: Primera entrega, sin cambios.
 
-2. Segmento elegido
-El segmento seleccionado de la Universidad Nacional de La Matanza (UNLaM) está compuesto por los alumnos o miembros de la comunidad que utilizan o tienen interés en utilizar el gimnasio de la Universidad, considerando principalmente a aquellos que realizan actividades de entrenamiento físico y requieren organizar y realizar un seguimiento de sus rutinas y concurrencia.
+2. Elección del segmento y comprobación del acceso
+
+2.1 Segmento elegido
+El segmento está compuesto aproximadamente por 2.000 afiliados y usuarios actuales o potenciales del gimnasio de la UNLaM. Se trata de un grupo específico dentro de la comunidad universitaria, diferenciado por su relación directa con las actividades y servicios ofrecidos por el gimnasio.
 Este segmento se caracteriza por ser un grupo de estudiantes que, además de sus actividades académicas, realizan actividad física dentro de las instalaciones de la UNLaM o también interesados en asistir al gimnasio sin necesidad de ser estudiantes de la universidad. Los usuarios presentan la necesidad de acceder de manera sencilla a la información relacionada con sus entrenamientos, conocer las rutinas asignadas por los entrenadores, registrar su asistencia y gestionar el pago de la suscripción al gimnasio.
-El segmento se encuentra acompañado por otros actores directamente relacionados con el funcionamiento del gimnasio, principalmente los entrenadores encargados de diseñar y asignar las rutinas de entrenamiento y los administradores responsables de gestionar los ejercicios, usuarios y aspectos generales de la plataforma.
+
+2.2 Usuarios reales
+
+Usuario  Rol                    Forma de contacto                              Relación previa con el equipo                       Disponibilidad TP2  Disponibilidad TP5
+U1       Alumno/a del gimnasio  Contacto personal / presencial en el gimnasio  Compañero/a de cursada de uno de los integrantes    Confirmada          Confirmada
+U2       Alumno/a del gimnasio  Contacto personal / WhatsApp                   Amigo/a de uno de los integrantes                   Confirmada          Confirmada
+U3       Alumno/a del gimnasio  Contacto presencial en el gimnasio             Conocido/a de uno de los integrantes                Confirmada          Confirmada
 
 3. Definición del producto
 
