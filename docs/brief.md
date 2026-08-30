@@ -1,6 +1,6 @@
 # Brief de Producto
 
-V1: Primera entrega, sin cambios.
+V2: Segunda entrega, se agregan los puntos que incorporan el perfil del usuario real, necesidades, problemas y contexto de uso relevados, la hipótesis de valor, y el estado de los supuestos (puntos del 6 al 11).
 
 2. Elección del segmento y comprobación del acceso
 
@@ -113,5 +113,54 @@ Evidencia para comprobarlo: Presentación de un MVP (Producto Mínimo Viable) a 
 
 Supuesto Crítico
 El Supuesto Crítico de este proyecto es el Supuesto 6: "Asumimos que la falta de centralización es un problema suficientemente molesto como para que los alumnos y entrenadores decidan adoptar una nueva plataforma web."
+
+6. Perfil del usuario
+Los usuarios encuestados tienen principalmente entre 21 y 28 años. 
+De las 6 personas, 4 personas asisten entre 2-3 veces por semana y 2 entre 4-5 veces. La mayoría tiene una rutina definida y utiliza el celular durante el entrenamiento, principalmente para ver sus rutinas, escuchar música o utilizar herramientas como el cronómetro. Esto muestra que el celular ya forma parte habitual del entrenamiento.
+
+7. Necesidades reales
+Los resultados muestran la necesidad de contar con un lugar centralizado para consultar y registrar la rutina, ya que actualmente los usuarios recurren a la memoria, notas del celular o distintas aplicaciones. También existe una necesidad de registrar y visualizar el progreso, ya que la mayoría no lo hace de manera constante ni consulta registros anteriores. Además, necesitan una forma más sencilla de guardar las indicaciones de los profesores y recibir información sobre el abono de la cuota del gimnasio.
+
+8. Problemas y frustraciones concretas
+Uno de los principales problemas detectados es la dependencia de la memoria. 5 de los 6 encuestados indicaron que alguna vez olvidaron ejercicios, pesos, series o repeticiones que debían realizar. Además, 3 personas manifestaron haberse olvidado alguna indicación del profesor. El seguimiento del progreso también presenta dificultades: la mayoría lo realiza de manera ocasional y 4 de 6 personas no consultan registros anteriores. En cuanto a la gestión de la cuota, 4 personas indicaron haber olvidado pagarla alguna vez, mientras que la mayoría se entera de los aumentos recién al momento de pagar.
+
+9.Contexto de uso
+El principal contexto de uso sería dentro del gimnasio, durante el entrenamiento, utilizando el celular. El usuario necesita consultar rápidamente su rutina, ejercicios, pesos o indicaciones entre series, por lo que la información debería estar disponible de manera simple y con pocos pasos. También existiría un contexto de uso fuera del gimnasio, principalmente para consultar información sobre la cuota, vencimientos y recibir recordatorios.
+
+10. Estado de los supuestos
+Supuesto 1: CONFIRMADO -> (P9) El 83,3% (5/6) reconoció haber olvidado alguna vez un ejercicio, peso o cantidad de repeticiones. (P6) El 50% anota la rutina en notas sueltas del celular, el 33,3% se la acuerda de memoria y el 0% usa papel. Hay que corregir el supuesto original: el problema es real, pero el medio equivocado
+
+Supuesto 2: CONFIRMADO -> (P24) La encuesta relevó el medio actual de pago: 50% efectivo, 33,3% billetera virtual, 16,7% tarjeta. Lo que sí surgió con fuerza es que (P25 y P26): el 66,7% se olvidó de pagar la cuota alguna vez y el 100% se entera de los aumentos recién al momento de pagar. El dolor no es "cómo pago" sino "no me avisan a tiempo". Conviene sumar al supuesto notificaciones sobre esto.
+
+Supuesto 3: CONFIRMADO -> (P11 y P12) 83,3% (5/6) usa el celular mientras entrena, principalmente para ver la rutina, usar el cronómetro y escuchar música.
+
+Supuesto 4: NO CONFIRMADO -> La técnica elegida (encuesta) se aplicó solo a alumnos/afiliados, no a entrenadores. Este supuesto queda fuera de esta validación.
+
+Supuesto 5: CONFIRMADO ->  (P23) El 100% carece de un método estructurado de registro de asistencia (66,7% "recuerda aproximadamente", 33,3% no lleva ningún registro), y el 66,7% no consulta registros anteriores de su progreso (P15). Hay una carencia real.
+
+Supuesto 6 (Crítico): CONFIRMADO -> (P22) 83,3% calificó con 4 o 5 (sobre 5) la utilidad de recibir indicaciones del profesor vía app, y 83,3% calificó igual de útil recibir información sobre la cuota en el celular (P28), con el 66,7% marcando el máximo (5). Sumado al 100% que hoy se entera de los aumentos "al momento de pagar", hay una brecha clara entre lo que pasa hoy y lo que valorarían tener.
+
+¿Qué apareció que no estaba previsto?
+Nadie usa papel para nada (rutina, progreso, asistencia): el canal real es "memoria informal", distinto al supuesto original.
+
+El 80% de los que tienen rutina definida la arma por su cuenta, y solo el 60% depende del profesor (P5), esto sugiere que el producto necesita contemplar rutinas autogestionadas, no solo asignadas por un entrenador.
+
+Una respuesta abierta (P10) señaló que las apps existentes son tediosas por tener los ejercicios en inglés.
+El punto de dolor de la cuota no es el medio de pago sino la falta de aviso previo (aumentos, vencimientos).
+
+¿Qué pasó con el supuesto crítico? 
+El supuesto crítico se confirmó. La evidencia relevada (P22 y P28) mostró que el 83,3% de los encuestados calificó con 4 o 5 (sobre 5) la utilidad de recibir tanto indicaciones del entrenador como información de la cuota a través de una app en el celular, y el 100% señaló que hoy se entera de los aumentos de cuota recién al momento de pagar — es decir, no hay ningún mecanismo proactivo actual que cubra esa necesidad.
+
+¿El usuario primario sigue siendo el correcto? 
+Sí. El relevamiento confirma que el afiliado/alumno del gimnasio tiene el problema con fuerza (olvidos, falta de seguimiento, falta de aviso de cuota) y una alta receptividad a una solución centralizada.
+
+11. Hipótesis de valor
+Creemos que los alumnos/afiliados del gimnasio de la UNLaM que entrenan de forma regular (2 a 5 veces por semana)
+
+tienen el problema de depender de la memoria y de canales dispersos e informales (notas sueltas en el celular, indicaciones verbales del profesor) para recordar su rutina, hacer seguimiento de su progreso y enterarse a tiempo del estado de su cuota, lo que genera olvidos frecuentes de ejercicios (83%), falta de seguimiento de su historial de progreso (67% no lo consulta) y sorpresas con la cuota (67% se olvidó de pagar alguna vez, 100% se entera de los aumentos recién al pagar).
+
+Nuestra solución es UNLaM-Gym, una plataforma web que centraliza la consulta de rutinas (asignadas por el entrenador o cargadas por el propio alumno), el registro de asistencia y progreso, y las notificaciones sobre el estado y vencimiento de la cuota.
+
+Sabremos que estamos en lo correcto cuando al menos el 80% de los usuarios que prueben el MVP logren consultar su rutina y registrar su asistencia sin ayuda externa durante la primera semana de uso, y valoren con 4 o más (sobre 5) la utilidad de las notificaciones de rutina y cuota.
 
 
