@@ -1,6 +1,6 @@
 # Brief de Producto
 
-V2: Segunda entrega. Se agregan los puntos que incorporan el perfil del usuario real, necesidades, problemas y contexto de uso relevados, la hipótesis de valor, y el estado de los supuestos (puntos del 6 al 11). Esta ampliación se justifica porque el trabajo de campo del TP2 nos permitió dejar atrás las suposiciones iniciales y basarnos en el comportamiento de usuarios reales mediante encuestas. A partir de esto, pudimos ajustar el foco hacia los verdaderos problemas detectados (la carga cognitiva de recordar rutinas y la falta de anticipación en las notificaciones de pago). Asimismo, la inclusión del estado de los supuestos se debe a que la validación exitosa de nuestra premisa crítica nos dio el fundamento necesario para establecer una hipótesis de valor sólida que guiará el desarrollo del MVP.
+V3: Tercera entrega. Se incorporan el scope del MVP, la definición de qué se construye y qué se simula, el flujo principal de interacción y los atributos de usabilidad priorizados. Esta actualización refleja la transición desde la validación del problema hacia el diseño de la solución, justificando las decisiones de producto en base a los aprendizajes previos
 
 2. Elección del segmento y comprobación del acceso
 
@@ -163,4 +163,14 @@ Nuestra solución es UNLaM-Gym, una plataforma web que centraliza la consulta de
 
 Sabremos que estamos en lo correcto cuando al menos el 80% de los usuarios que prueben el MVP logren consultar su rutina y registrar su asistencia sin ayuda externa durante la primera semana de uso, y valoren con 4 o más (sobre 5) la utilidad de las notificaciones de rutina y cuota.
 
+12. Scope del MVP
+Se recorta la propuesta de valor a las funcionalidades estrictamente necesarias para poner a prueba la hipótesis central (centralizar la rutina y la asistencia para reducir la dependencia de la memoria), dejando fuera integraciones complejas como Mercado Pago o la gestión de múltiples perfiles para mantener el enfoque en la validación.
 
+13. Qué se construye y qué se simula
+Se delimita el esfuerzo técnico, asegurando que se construyan los frontends interactivos esenciales (rutinas y calendario de asistencia) para testear el valor, mientras se simula la persistencia de datos y estados de cuenta para lograr una prueba ágil.
+
+14. Flujo principal
+Se estructura el recorrido lógico y central que hará el usuario en la aplicación, desde el acceso hasta el registro de su asistencia, garantizando que el camino hacia el valor prometido sea directo.
+
+15. Atributos de usabilidad
+Se priorizan la facilidad de aprendizaje, la eficiencia y la satisfacción para alinear el diseño con el contexto de uso real (el gimnasio), asegurando que la herramienta requiera pocos pasos y no interrumpa el entrenamiento.
