@@ -1,6 +1,6 @@
 # Brief de Producto
 
-V2: Segunda entrega, se agregan los puntos que incorporan el perfil del usuario real, necesidades, problemas y contexto de uso relevados, la hipótesis de valor, y el estado de los supuestos (puntos del 6 al 11).
+V2: Segunda entrega. Se agregan los puntos que incorporan el perfil del usuario real, necesidades, problemas y contexto de uso relevados, la hipótesis de valor, y el estado de los supuestos (puntos del 6 al 11). Esta ampliación se justifica porque el trabajo de campo del TP2 nos permitió dejar atrás las suposiciones iniciales y basarnos en el comportamiento de usuarios reales mediante encuestas. A partir de esto, pudimos ajustar el foco hacia los verdaderos problemas detectados (la carga cognitiva de recordar rutinas y la falta de anticipación en las notificaciones de pago). Asimismo, la inclusión del estado de los supuestos se debe a que la validación exitosa de nuestra premisa crítica nos dio el fundamento necesario para establecer una hipótesis de valor sólida que guiará el desarrollo del MVP.
 
 2. Elección del segmento y comprobación del acceso
 
