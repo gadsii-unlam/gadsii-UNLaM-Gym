@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UNLaM-Gym — Wireframe de baja fidelidad (TP3)</title>
+<style>
+  :root{
+    --ink:#1a1a1a;
+    --line:#8a8a8a;
+    --line-soft:#c7c7c7;
+    --fill:#e9e9e9;
+    --fill-soft:#f3f3f3;
+    --page:#fafafa;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--page);
+    color:var(--ink);
+    font-family:'Courier New', ui-monospace, monospace;
+    padding:24px 16px 60px;
+  }
+  h1{font-size:16px;letter-spacing:.02em;margin:0 0 4px;}
+  .sub{font-size:12px;color:#555;margin:0 0 20px;max-width:640px;line-height:1.5;}
+  .layout{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  .phone-wrap{flex:0 0 auto;}
+  .phone{
+    width:340px;
+    border:2px solid var(--ink);
+    border-radius:20px;
+    background:#fff;
+    overflow:hidden;
+    position:relative;
+  }
+  .notch{height:16px;background:var(--ink);width:90px;margin:8px auto 0;border-radius:6px;}
+  .screen{
+    min-height:600px;
+    display:none;
+    flex-direction:column;
+    padding:14px 14px 0;
+    position:relative;
+  }
+  .screen.active{display:flex;}
+  .topbar{
+    display:flex;justify-content:space-between;align-items:baseline;
+    border-bottom:1px solid var(--line);
+    padding-bottom:8px;margin-bottom:10px;
+  }
+  .topbar .title{font-size:14px;font-weight:bold;}
+  .topbar .meta{font-size:10px;color:#666;display:flex;gap:8px;align-items:center;}
+  .content{flex:1;overflow-y:auto;padding-bottom:10px;}
+  .box{
+    border:1px solid var(--line);
+    background:var(--fill-soft);
+    padding:10px;margin-bottom:10px;
+  }
+  .box-title{font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;color:#333;}
+
+  .progress-wrap{margin-bottom:8px;}
+  .progress-track{height:8px;border:1px solid var(--line);background:#fff;overflow:hidden;}
+  .progress-fill{height:100%;background:repeating-linear-gradient(45deg, var(--ink) 0 3px, var(--fill) 3px 6px);}
+  .progress-label{font-size:10px;color:#555;margin-top:5px;}
+
+  .ex-row{
+    display:flex;align-items:center;gap:9px;
+    padding:7px 2px;border-bottom:1px dashed var(--line-soft);
+    cursor:pointer;user-select:none;font-size:12px;
+  }
+  .ex-row:last-child{border-bottom:none;}
+  .ex-check{
+    width:16px;height:16px;border:1.5px solid var(--ink);
+    flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:bold;
+  }
+  .ex-row.done .ex-check{background:var(--ink);color:#fff;}
+  .ex-name{flex:1;}
+  .ex-row.done .ex-name{color:#777;text-decoration:line-through;}
+  .tag{font-size:9px;border:1px solid var(--line);padding:1px 6px;color:#444;}
+  .ex-row.done .tag{color:#999;border-color:var(--line-soft);}
+
+  .hint{
+    font-size:10.5px;border:1px dashed var(--ink);padding:7px 9px;
+    margin-bottom:10px;display:none;
+  }
+  .hint.show{display:block;}
+
+  .streak-badge{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    border:1.5px solid var(--ink);border-radius:20px;
+    padding:6px 10px;margin-bottom:10px;font-size:11px;font-weight:bold;
+  }
+  .streak-badge .flame{width:12px;height:12px;display:inline-block;flex:0 0 auto;}
+  .streak-badge .flame svg{width:100%;height:100%;fill:var(--ink);}
+
+  .celebrate{
+    border:1.5px dashed var(--ink);padding:10px 9px;
+    margin-bottom:10px;text-align:center;display:none;
+  }
+  .celebrate.show{display:block;}
+  .celebrate .msg{font-size:12px;font-weight:bold;margin-bottom:3px;}
+  .celebrate .sub{font-size:10px;color:#555;}
+
+  .row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px dashed var(--line-soft);padding:6px 2px;font-size:12px;}
+  .row:last-child{border-bottom:none;}
+  .placeholder-line{height:9px;background:repeating-linear-gradient(90deg,var(--line-soft) 0 2px, transparent 2px 4px);width:45%;}
+
+  .form-input {
+    border: 1px solid var(--line);
+    background: #fff;
+    font-family: inherit;
+    font-size: 11px;
+    padding: 3px 5px;
+    width: 60%;
+    outline: none;
+  }
+  .form-input:focus {
+    border-color: var(--ink);
+  }
+
+  .btn{
+    display:block;width:100%;text-align:center;
+    border:1px solid var(--ink);background:#fff;
+    padding:10px;font-size:12px;font-weight:bold;
+    cursor:pointer;margin-top:4px;letter-spacing:.02em;
+  }
+  .btn:active{background:var(--fill);}
+  .btn.primary{background:var(--ink);color:#fff;}
+  .btn.primary.done{background:#fff;color:var(--ink);border-style:dashed;}
+  .btn.ghost{border-style:dashed;color:#555;}
+  .btn.small{padding:6px;font-size:10px;display:inline-block;width:auto;}
+  .btn.action{padding:2px 6px;font-size:10px;margin:0;border:1px solid var(--line-soft);}
+  .btn.action:disabled{opacity:0.3;cursor:default;}
+
+  .tabs{display:flex;gap:4px;margin-bottom:10px;}
+  .tabday{flex:1;text-align:center;border:1px solid var(--line);padding:6px 2px;font-size:10px;cursor:pointer;background:#fff;}
+  .tabday.sel{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-size:9px;text-align:center;}
+  .cal-head{color:#777;padding:2px 0;}
+  .cal-day{
+    aspect-ratio:1;border:1px solid var(--line-soft);display:flex;align-items:center;justify-content:center;
+    position:relative;background:#fff;cursor:default;
+  }
+  .cal-day.blank{border:none;}
+  .cal-day.marked{background:var(--fill);}
+  .cal-day.marked::after{content:"●";position:absolute;bottom:2px;font-size:8px;}
+  .cal-day.today{outline:2px dashed var(--ink);outline-offset:-2px;cursor:pointer;font-weight:bold;}
+  .legend{font-size:9px;color:#555;margin-top:8px;display:flex;gap:12px;}
+
+  .navbar{display:flex;border-top:1px solid var(--ink);}
+  .navitem{flex:1;text-align:center;padding:9px 2px 10px;font-size:9px;cursor:pointer;color:#666;border-right:1px solid var(--line-soft);}
+  .navitem:last-child{border-right:none;}
+  .navitem .ic{width:16px;height:16px;border:1.4px solid #999;margin:0 auto 3px;display:block;}
+  .navitem.active{color:var(--ink);font-weight:bold;}
+  .navitem.active .ic{border-color:var(--ink);background:var(--fill);}
+
+  .empty-state{text-align:center;padding:30px 10px;color:#666;font-size:11px;}
+
+  .construction{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 10px;}
+  .barrier{width:60px;height:60px;border:2px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .barrier svg{width:28px;height:28px;stroke:var(--ink);fill:none;stroke-width:1.8;}
+  .construction h2{font-size:13px;margin:0 0 8px;}
+  .construction p{font-size:11px;color:#555;line-height:1.5;margin:0 0 18px;}
+
+  .side-legend{max-width:280px;font-size:11px;line-height:1.6;color:#333;}
+  .side-legend h2{font-size:12px;margin:0 0 8px;}
+  .side-legend ol{padding-left:18px;margin:0 0 16px;}
+  .side-legend .screen-name{font-weight:bold;}
+  .side-legend ul.decisions{padding-left:18px;margin:0;}
+  .side-legend ul.decisions li{margin-bottom:9px;}
+</style>
+</head>
+<body>
+
+<h1>UNLaM-Gym — Wireframe de baja fidelidad (MVP, TP3)</h1>
+<p class="sub">Flujo principal: consultar la rutina de hoy y marcar el avance ejercicio por ejercicio → registrar y ver asistencia en el calendario → acceso a "Mi cuota" (en construcción).</p>
+
+<div class="layout">
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="notch"></div>
+
+      <!-- HOY -->
+      <div class="screen active" data-screen="hoy">
+        <div class="topbar">
+          <span class="title">Hoy</span>
+          <span class="meta" id="hoyDateDisplay"></span>
+        </div>
+        <div class="content">
+          <div class="streak-badge" id="streakBadge">
+            <span class="flame"><svg viewBox="0 0 24 24"><path d="M12 2c1 3-3 4-3 8a3 3 0 0 0 6 0c1 1 2 2 2 4a5 5 0 0 1-10 0c0-4 3-5 3-9 0-1 1-2 2-3z"/></svg></span>
+            <span id="streakText">3 días seguidos</span>
+          </div>
+
+          <div class="box">
+            <div class="box-title" id="hoyRoutineTitle">Tu rutina de hoy</div>
+            <div class="progress-wrap">
+              <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+              <div class="progress-label" id="progressLabel">0 ejercicios completados</div>
+            </div>
+            <div id="hoyExercises"></div>
+          </div>
+
+          <div class="hint" id="doneHint">¡Completaste tu rutina de hoy! No te olvides de marcar tu asistencia.</div>
+          <div class="celebrate" id="celebrateBox">
+            <div class="msg" id="celebrateMsg">¡4 días seguidos!</div>
+            <div class="sub">vas mejor que el mes pasado</div>
+          </div>
+          <button class="btn primary" id="markBtn" onclick="markAttendance()" style="display: none;">Marcar que vine hoy</button>
+        </div>
+        <div class="navbar" id="nav-hoy"></div>
+      </div>
+
+      <!-- RUTINA -->
+      <div class="screen" data-screen="rutina">
+        <div class="topbar">
+          <span class="title">Mi rutina</span>
+          <span class="meta">7 días</span>
+        </div>
+        <div class="content">
+          <div class="tabs" id="dayTabs"></div>
+          <div class="box" id="dayExercises"></div>
+          <button class="btn ghost" onclick="toggleAddForm()">+ Agregar ejercicio</button>
+
+          <div class="box" id="addForm" style="display:none;">
+            <div class="box-title">Nuevo ejercicio</div>
+            <div class="row"><span>Nombre</span><input type="text" id="newExName" class="form-input" placeholder="Ej: Curl de bíceps"></div>
+            <div class="row"><span>Series y Reps</span><input type="text" id="newExTag" class="form-input" placeholder="Ej: 3x12"></div>
+            <button class="btn small" style="margin-top:8px;" onclick="addExercise()">Guardar</button>
+          </div>
+        </div>
+        <div class="navbar" id="nav-rutina"></div>
+      </div>
+
+      <!-- CALENDARIO -->
+      <div class="screen" data-screen="calendario">
+        <div class="topbar">
+          <span class="title">Calendario</span>
+          <span class="meta" id="calMonthDisplay"></span>
+        </div>
+        <div class="content">
+          <div class="box">
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="legend"><span>● día entrenado</span><span>▢ hoy (tocar para marcar)</span></div>
+          </div>
+          <div class="box">
+            <div class="box-title">Resumen</div>
+            <div class="row"><span>Días entrenados este mes</span><span class="tag" id="calCount"></span></div>
+            <div class="row"><span>Constancia</span><span class="tag" id="calConstancia"></span></div>
+          </div>
+        </div>
+        <div class="navbar" id="nav-calendario"></div>
+      </div>
+
+      <!-- CUOTA -->
+      <div class="screen" data-screen="cuota">
+        <div class="topbar">
+          <span class="title">Mi cuota</span>
+          <span class="meta"></span>
+        </div>
+        <div class="construction">
+          <div class="barrier">
+            <svg viewBox="0 0 24 24"><path d="M12 8v5M12 16h.01M10.3 3.9L2.7 17.5c-.6 1 .1 2.2 1.2 2.2h16.2c1.1 0 1.8-1.2 1.2-2.2L13.7 3.9c-.6-1-2-1-2.6 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h2>Esta función está en construcción</h2>
+          <p>Muy pronto vas a poder ver el estado de tu cuota y pagarla desde acá.</p>
+          <button class="btn ghost" onclick="go('hoy')">Volver a Hoy</button>
+        </div>
+        <div class="navbar" id="nav-cuota"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="side-legend">
+    <h2>Cómo navegar este wireframe</h2>
+    <ol>
+      <li><span class="screen-name">Hoy</span> — rutina del día con avance por ejercicio + marcar asistencia.</li>
+      <li><span class="screen-name">Rutina</span> — ver por día, agregar/editar/eliminar ejercicios.</li>
+      <li><span class="screen-name">Calendario</span> — historial de asistencia del mes actual.</li>
+      <li><span class="screen-name">Cuota</span> — aviso de función en construcción.</li>
+    </ol>
+
+    <h2>Por qué está armado así</h2>
+    <ul class="decisions">
+      <li>"Hoy" junta la rutina del día y la acción de marcar asistencia en una sola pantalla, sin pasos intermedios.</li>
+      <li>Los ejercicios de "Hoy" son los mismos que se cargan en "Rutina": no se duplica la información.</li>
+      <li>El alumno arma, edita y elimina su propia rutina, tomando el control total sobre su plan.</li>
+      <li>El calendario muestra el historial de constancia del mes actual únicamente, sin navegación a meses anteriores ni futuros.</li>
+      <li>La racha de días seguidos y el % de constancia dan una devolución positiva justo después de marcar asistencia, para reforzar que el alumno sostenga el hábito con el tiempo (alternativa de satisfacción elegida en la Parte 2).</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  // Lógica de Fechas Global
+  const now = new Date();
+  const daysMap = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  const monthsMap = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const fullMonthsMap = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+  const currentDayName = daysMap[now.getDay()];
+  const currentDayNum = now.getDate();
+  const currentMonthName = monthsMap[now.getMonth()];
+
+  document.getElementById("hoyDateDisplay").textContent = `${currentDayName} · ${currentDayNum} ${currentMonthName}`;
+  document.getElementById("hoyRoutineTitle").textContent = `Tu rutina de hoy — ${currentDayName}`;
+
+  // Navegación
+  const screens = ["hoy","rutina","calendario","cuota"];
+  const navLabels = [
+    {id:"hoy", label:"Hoy"},
+    {id:"rutina", label:"Rutina"},
+    {id:"calendario", label:"Calendario"},
+    {id:"cuota", label:"Cuota"}
+  ];
+
+  function buildNav(){
+    screens.forEach(s=>{
+      const bar = document.getElementById("nav-"+s);
+      bar.innerHTML = "";
+      navLabels.forEach(n=>{
+        const el = document.createElement("div");
+        el.className = "navitem" + (n.id===s ? " active": "");
+        el.innerHTML = '<span class="ic"></span>'+n.label;
+        el.onclick = ()=>go(n.id);
+        bar.appendChild(el);
+      });
+    });
+  }
+
+  function go(screenId){
+    document.querySelectorAll(".screen").forEach(el=>{
+      el.classList.toggle("active", el.dataset.screen===screenId);
+    });
+  }
+
+  // Rutina Base
+  const routine = {
+    "Lun": [["Sentadilla","4x10"],["Prensa","3x12"],["Extensión cuádriceps","3x15"],["Zancadas","4x8"]],
+    "Mar": [["Press banca","4x8"],["Press militar","3x10"],["Fondos","3x12"]],
+    "Mié": [["Descanso / cardio suave",""]],
+    "Jue": [["Peso muerto","4x8"],["Remo","3x10"],["Dominadas asistidas","3x8"]],
+    "Vie": [["Sentadilla búlgara","3x10"],["Curl bíceps","3x12"],["Plancha","3x40seg"]],
+    "Sáb": [["Día libre",""]],
+    "Dom": [["Día libre",""]]
+  };
+
+  const TODAY_KEY = currentDayName;
+  let selectedDay = TODAY_KEY;
+  const doneToday = new Set();
+
+  // Racha de días seguidos (alternativa C — Satisfacción): valor inicial simulado
+  let streak = 3;
+
+  function buildDayTabs(){
+    const box = document.getElementById("dayTabs");
+    box.innerHTML = "";
+    Object.keys(routine).forEach(d=>{
+      const el = document.createElement("div");
+      el.className = "tabday" + (d===selectedDay ? " sel":"");
+      el.textContent = d;
+      el.onclick = ()=>{ selectedDay = d; buildDayTabs(); renderExercises(); };
+      box.appendChild(el);
+    });
+  }
+
+  function renderExercises(){
+    const box = document.getElementById("dayExercises");
+    const list = routine[selectedDay];
+    box.innerHTML = '<div class="box-title">'+selectedDay+'</div>';
+
+    if(list.length===1 && list[0][1]===""){
+      box.innerHTML += '<div class="empty-state">Sin ejercicios cargados este día.</div>';
+      return;
+    }
+
+    list.forEach(([name,tag], idx)=>{
+      const row = document.createElement("div");
+      row.className="row";
+      row.innerHTML = `
+        <span style="flex:1;">${name}</span>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <span class="tag">${tag}</span>
+          <button class="btn action" onclick="editExercise(${idx})" title="Editar">✎</button>
+          <button class="btn action" style="color:red; border-color:#faa;" onclick="deleteExercise(${idx})" title="Eliminar">×</button>
+        </div>`;
+      box.appendChild(row);
+    });
+  }
+
+  function editExercise(idx) {
+    const currentName = routine[selectedDay][idx][0];
+    const currentTag = routine[selectedDay][idx][1];
+
+    const newName = prompt("Editar nombre del ejercicio:", currentName);
+    if (newName === null) return;
+    const newTag = prompt("Editar series y repeticiones:", currentTag);
+    if (newTag === null) return;
+
+    routine[selectedDay][idx] = [newName.trim() || currentName, newTag.trim() || currentTag];
+    renderExercises();
+    if(selectedDay === TODAY_KEY) renderHoyExercises();
+  }
+
+  function deleteExercise(idx) {
+    if (confirm("¿Seguro que querés eliminar este ejercicio?")) {
+      routine[selectedDay].splice(idx, 1);
+      if (routine[selectedDay].length === 0) { routine[selectedDay] = [["Día libre", ""]]; }
+      renderExercises();
+      if(selectedDay === TODAY_KEY) renderHoyExercises();
+    }
+  }
+
+  function toggleAddForm(){
+    const f = document.getElementById("addForm");
+    f.style.display = f.style.display==="none" ? "block":"none";
+  }
+
+  function addExercise() {
+    const nameInput = document.getElementById("newExName");
+    const tagInput = document.getElementById("newExTag");
+    const name = nameInput.value.trim();
+    const tag = tagInput.value.trim();
+
+    if (!name) { alert("Por favor, ingresá un nombre para el ejercicio."); return; }
+    if(routine[selectedDay].length === 1 && routine[selectedDay][0][1] === "") { routine[selectedDay] = []; }
+
+    routine[selectedDay].push([name, tag]);
+    nameInput.value = ""; tagInput.value = "";
+    toggleAddForm(); renderExercises();
+    if(selectedDay === TODAY_KEY) { renderHoyExercises(); }
+  }
+
+  // Hoy
+  function renderHoyExercises(){
+    const box = document.getElementById("hoyExercises");
+    const list = routine[TODAY_KEY];
+    box.innerHTML = "";
+
+    if(list.length===1 && list[0][1]===""){
+      box.innerHTML = '<div class="empty-state" style="padding:15px 0;">Hoy es tu día de descanso. ¡A recuperar energías!</div>';
+      updateProgress();
+      return;
+    }
+
+    list.forEach(([name,tag], idx)=>{
+      const row = document.createElement("div");
+      row.className = "ex-row" + (doneToday.has(idx) ? " done":"");
+      row.innerHTML = '<span class="ex-check">'+(doneToday.has(idx)?"✓":"")+'</span>'
+                     + '<span class="ex-name">'+name+'</span>'
+                     + '<span class="tag">'+tag+'</span>';
+      row.onclick = ()=>{
+        if(doneToday.has(idx)) doneToday.delete(idx); else doneToday.add(idx);
+        renderHoyExercises();
+      };
+      box.appendChild(row);
+    });
+    updateProgress();
+  }
+
+  function updateProgress(){
+    const total = routine[TODAY_KEY].length;
+    const isRestDay = (total === 1 && routine[TODAY_KEY][0][1] === "");
+    const realTotal = isRestDay ? 0 : total;
+
+    const done = doneToday.size;
+    const pct = realTotal ? Math.round((done/realTotal)*100) : 100;
+
+    document.getElementById("progressFill").style.width = pct+"%";
+
+    if (isRestDay) {
+        document.getElementById("progressLabel").textContent = "Día de descanso";
+        document.getElementById("markBtn").style.display = "none";
+        document.getElementById("doneHint").classList.remove("show");
+    } else {
+        document.getElementById("progressLabel").textContent = done+" de "+realTotal+" ejercicios completados";
+        document.getElementById("markBtn").style.display = "block";
+        document.getElementById("doneHint").classList.toggle("show", done===realTotal && realTotal>0 && !attendanceMarked);
+    }
+  }
+
+  let attendanceMarked = false;
+  function markAttendance(){
+    if(attendanceMarked) return;
+    attendanceMarked = true;
+    const btn = document.getElementById("markBtn");
+    btn.textContent = "✓ Asistencia registrada hoy";
+    btn.classList.add("done");
+    document.getElementById("doneHint").classList.remove("show");
+
+    // Racha y refuerzo positivo (alternativa C — Satisfacción)
+    streak++;
+    document.getElementById("streakText").textContent = streak+" días seguidos";
+    document.getElementById("celebrateMsg").textContent = "¡"+streak+" días seguidos!";
+    document.getElementById("celebrateBox").classList.add("show");
+
+    // Marcamos "hoy" visualmente en el calendario
+    const today = document.querySelector(".cal-day.today");
+    if(today){ today.classList.add("marked"); }
+    const counter = document.getElementById("calCount");
+    const newCount = parseInt(counter.textContent)+1;
+    counter.textContent = newCount;
+    const pct = currentDayNum ? Math.round((newCount/currentDayNum)*100) : 0;
+    document.getElementById("calConstancia").textContent = pct+"%";
+  }
+
+  // Calendario (solo mes actual, sin navegación a meses anteriores/futuros)
+  function buildCalendar(){
+    const targetMonth = now.getMonth();
+    const targetYear = now.getFullYear();
+
+    document.getElementById("calMonthDisplay").textContent = `${fullMonthsMap[targetMonth]} ${targetYear}`;
+
+    const grid = document.getElementById("calGrid");
+    grid.innerHTML = "";
+    ["L","M","M","J","V","S","D"].forEach(d=>{
+      const h = document.createElement("div");
+      h.className="cal-head"; h.textContent=d;
+      grid.appendChild(h);
+    });
+
+    // Días marcados: días reales pre-marcados + hoy si ya se marcó asistencia
+    const markedDays = [1,3,4,7,8,10,11].filter(d => d < currentDayNum);
+    if (attendanceMarked) markedDays.push(currentDayNum);
+
+    const firstDayOfMonth = now.getDay();
+    const leadingBlanks = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+    const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+
+    for(let i=0; i<leadingBlanks; i++){
+      const b=document.createElement("div"); b.className="cal-day blank"; grid.appendChild(b);
+    }
+    for(let day=1; day<=daysInMonth; day++){
+      const cell = document.createElement("div");
+      let cls = "cal-day";
+      if(markedDays.includes(day)) cls += " marked";
+
+      if(day === currentDayNum) {
+          cls += " today";
+          cell.onclick = markAttendance;
+      }
+
+      cell.className = cls;
+      cell.textContent = day;
+      grid.appendChild(cell);
+    }
+
+    document.getElementById("calCount").textContent = markedDays.length;
+
+    // Constancia (alternativa C — Satisfacción): % de días entrenados sobre los transcurridos
+    const pct = currentDayNum ? Math.round((markedDays.length/currentDayNum)*100) : 0;
+    document.getElementById("calConstancia").textContent = pct+"%";
+  }
+
+  buildNav();
+  buildDayTabs();
+  renderExercises();
+  renderHoyExercises();
+  buildCalendar();
+  document.getElementById("streakText").textContent = streak+" días seguidos";
+</script>
+
+</body>
+</html>
