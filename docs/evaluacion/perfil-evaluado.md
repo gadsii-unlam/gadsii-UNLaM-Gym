@@ -1,3 +1,3 @@
-El usuario concreto es aquel miembro activo de la comunidad UNLaM que asiste en auto, moto o bicicleta durante horarios pico de cursada. Dicho usuario, utiliza la aplicación desde su dispositivo móvil mientras conduce en las cuadras previas a la universidad, apurado y bajo estrés cognitivo. 
+El usuario concreto es el estudiante de la UNLaM que asiste en auto propio durante horarios pico de cursada. Dicho usuario, utiliza la aplicación desde su dispositivo móvil mientras conduce en las cuadras previas a la universidad, apurado y bajo estrés cognitivo. 
 El equipo priorizó la eficiencia (brindar información rápida al volante) y minimizar la tasa de errores (evitar malentendidos visuales que lo lleven a la playa equivocada). 
-La hipótesis que testea el MVP es que visualizar la ocupación en tiempo real permite al estudiante decidir a qué playa dirigirse (Perón o La Paz) antes de hacer la fila.
+La hipótesis que testea el MVP es que visualizar la ocupación en tiempo real permite al estudiante decidir a qué playa dirigirse (Perón o La Paz) antes de hacer la fila. 
