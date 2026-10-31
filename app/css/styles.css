@@ -119,6 +119,7 @@ button,input,select{font-family:inherit;color:inherit;}
   cursor:pointer;margin-top:4px;letter-spacing:.02em;
 }
 .btn:active{background:var(--fill);}
+a.btn{text-decoration:none;color:inherit;}
 .btn.primary{background:var(--ink);color:#fff;}
 .btn.primary.done{background:#fff;color:var(--ink);border-style:dashed;}
 .btn.ghost{border-style:dashed;color:#444;}

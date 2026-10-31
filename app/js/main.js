@@ -1,10 +1,11 @@
 // Punto de entrada: arma la vista, conecta acciones y renderiza.
 import { renderApp } from "./ui.js";
-import { getState, initStore, refresh, resolveUserId, update } from "./store.js";
-import { setContext, startEventLoop, track } from "./events.js";
+import { getState, initStore, refresh, resetToSeed, resolveUserId, storageKey, update } from "./store.js";
+import { flush, queueSize, readQueue, setContext, startEventLoop, track } from "./events.js";
+import { EVENTS_ENDPOINT } from "./config.js";
 import {
   addExercise, allExerciseIds, dayKeyOf, deleteExercise, editExercise, findExercise,
-  localDateKey, makeId, removeCompletedId, setRest, toggleAttendance, toggleCompleted, validateExercise,
+  isoWithOffset, localDateKey, makeId, removeCompletedId, setRest, toggleAttendance, toggleCompleted, validateExercise,
 } from "./logic.js";
 
 const userId = resolveUserId(location.search);
@@ -181,6 +182,79 @@ function submitExerciseForm(form) {
   track(mode === "edit" ? "exercise_edit" : "exercise_add", exerciseData(dayKey, { id, ...result.value }));
 }
 
+/* ---------- Herramientas del equipo (?admin=1, sin link desde la UI) ---------- */
+
+const isAdmin = new URLSearchParams(location.search).get("admin") === "1";
+
+function adminInfo(extra = {}) {
+  const s = getState();
+  return {
+    userId: s.userId,
+    queueSize: queueSize(),
+    endpoint: !!EVENTS_ENDPOINT,
+    attendanceCount: s.attendance.length,
+    storageKey: storageKey(s.userId),
+    confirmReset: false,
+    message: "",
+    ...extra,
+  };
+}
+
+function downloadJson(filename, data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+Object.assign(actions, {
+  "admin-export": () => {
+    const now = new Date();
+    const s = getState();
+    downloadJson(`unlamgym-${s.userId}-${localDateKey(now)}.json`, {
+      exportedAt: isoWithOffset(now),
+      userId: s.userId,
+      state: s,
+      eventQueue: readQueue(),
+    });
+    view.admin = adminInfo({ message: "Archivo exportado." });
+    rerender();
+  },
+
+  "admin-flush": async () => {
+    view.admin = adminInfo({ message: "Enviando…" });
+    rerender();
+    await flush();
+    const left = queueSize();
+    const message = !EVENTS_ENDPOINT
+      ? "EVENTS_ENDPOINT está vacío en config.js: los eventos quedan en la cola local."
+      : left === 0 ? "Cola enviada." : `No se pudo enviar todo: quedan ${left} eventos (¿sin conexión?).`;
+    view.admin = adminInfo({ message });
+    rerender();
+  },
+
+  "admin-reset": () => {
+    view.admin = adminInfo({ confirmReset: true });
+    rerender();
+  },
+
+  "admin-reset-cancel": () => {
+    view.admin = adminInfo();
+    rerender();
+  },
+
+  "admin-reset-confirm": () => {
+    resetToSeed();
+    view.admin = adminInfo({ message: `Datos de ${getState().userId} reseteados.` });
+    rerender();
+  },
+});
+
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-action]");
   if (!el || !actions[el.dataset.action]) return;
@@ -209,6 +283,13 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") checkDayChange();
 });
 
-rerender();
-startEventLoop();
-track("screen_view");
+if (isAdmin) {
+  // La pantalla del equipo no registra eventos para no ensuciar las métricas.
+  view.screen = "admin";
+  view.admin = adminInfo();
+  rerender();
+} else {
+  rerender();
+  startEventLoop();
+  track("screen_view");
+}

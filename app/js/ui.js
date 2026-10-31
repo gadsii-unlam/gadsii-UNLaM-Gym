@@ -235,8 +235,50 @@ function renderCalendario(state, view, ctx) {
     </div>`;
 }
 
+/* ---------- Admin (?admin=1) ---------- */
+
+function renderAdmin(admin) {
+  const resetBtn = admin.confirmReset
+    ? `<div class="confirm-row">
+        ¿Borrar los datos de ${esc(admin.userId)} en este celular y volver a la rutina inicial?
+        <div class="btn-row">
+          <button type="button" class="btn danger" data-action="admin-reset-confirm">Sí, resetear</button>
+          <button type="button" class="btn" data-action="admin-reset-cancel">Cancelar</button>
+        </div>
+      </div>`
+    : `<button type="button" class="btn danger" data-action="admin-reset">Resetear datos del usuario</button>`;
+
+  $("adminContent").innerHTML = `
+    <div class="box">
+      <div class="box-title">Estado</div>
+      <dl class="admin-dl">
+        <div><dt>Usuario activo</dt><dd>${esc(admin.userId)}</dd></div>
+        <div><dt>Eventos en cola</dt><dd>${admin.queueSize}</dd></div>
+        <div><dt>Endpoint</dt><dd>${admin.endpoint ? "configurado" : "vacío (solo cola local)"}</dd></div>
+        <div><dt>Días con asistencia</dt><dd>${admin.attendanceCount}</dd></div>
+        <div><dt>Clave</dt><dd>${esc(admin.storageKey)}</dd></div>
+      </dl>
+    </div>
+    <div class="box">
+      <div class="box-title">Acciones</div>
+      <button type="button" class="btn" data-action="admin-export">Exportar estado y eventos (JSON)</button>
+      <button type="button" class="btn" data-action="admin-flush">Reenviar cola de eventos</button>
+      ${resetBtn}
+      ${admin.message ? `<div class="admin-msg" role="status">${esc(admin.message)}</div>` : ""}
+    </div>
+    <div class="box">
+      <div class="box-title">Links</div>
+      <div class="admin-msg">Usuario: agregar ?u=U1, ?u=U2 o ?u=U3 a la URL (con &amp;admin=1 para volver acá).</div>
+      <a class="btn ghost" href="./">Abrir la app</a>
+    </div>`;
+}
+
 export function renderApp(state, view, ctx) {
   showScreen(view.screen);
+  if (view.screen === "admin") {
+    renderAdmin(view.admin);
+    return;
+  }
   renderNav(view.screen);
   renderHoy(state, view, ctx);
   renderRutina(state, view, ctx);
