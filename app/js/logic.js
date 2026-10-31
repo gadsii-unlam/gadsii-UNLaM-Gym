@@ -54,3 +54,35 @@ export function isoWithOffset(date) {
   return `${localDateKey(date)}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.${ms}` +
     `${sign}${pad(Math.floor(abs / 60))}:${pad(abs % 60)}`;
 }
+
+/* ---------- Estado ---------- */
+
+const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+// Fechas válidas, sin duplicados y ordenadas.
+export function normalizeAttendance(list) {
+  return [...new Set((list || []).filter(d => DATE_KEY_RE.test(d)))].sort();
+}
+
+// Las marcas de completado solo valen para hoy: se descartan las de otras fechas.
+export function pruneCompleted(completed, todayKey) {
+  const ids = completed && Array.isArray(completed[todayKey]) ? completed[todayKey] : [];
+  return ids.length ? { [todayKey]: [...new Set(ids)] } : {};
+}
+
+// Estado nuevo a partir de un seed (copia profunda: el seed nunca se modifica).
+export function stateFromSeed(userId, seed) {
+  const routine = {};
+  for (const k of DAY_KEYS) {
+    const d = seed.routine[k] || { rest: false, exercises: [] };
+    routine[k] = { rest: !!d.rest, exercises: d.exercises.map(e => ({ ...e })) };
+  }
+  return { version: 1, userId, routine, attendance: normalizeAttendance(seed.attendance), completed: {} };
+}
+
+// Verifica la forma mínima de un estado leído de localStorage.
+export function isValidState(s, userId) {
+  return !!s && s.version === 1 && s.userId === userId &&
+    !!s.routine && DAY_KEYS.every(k => s.routine[k] && Array.isArray(s.routine[k].exercises)) &&
+    Array.isArray(s.attendance) && !!s.completed && typeof s.completed === "object";
+}

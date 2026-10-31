@@ -1,10 +1,14 @@
 // Punto de entrada: arma la vista, conecta acciones y renderiza.
 import { renderApp } from "./ui.js";
+import { getState, initStore, resolveUserId } from "./store.js";
+
+const userId = resolveUserId(location.search);
+initStore(userId);
 
 const view = { screen: "hoy" };
 
 function rerender() {
-  renderApp(view);
+  renderApp(getState(), view);
 }
 
 function go(screen) {

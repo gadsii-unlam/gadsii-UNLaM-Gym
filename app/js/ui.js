@@ -27,7 +27,7 @@ export function renderNav(screen) {
     </button>`).join("");
 }
 
-export function renderApp(view) {
+export function renderApp(state, view) {
   showScreen(view.screen);
   renderNav(view.screen);
 }
