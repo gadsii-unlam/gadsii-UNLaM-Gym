@@ -1,0 +1,9 @@
+{
+  "name": "unlam-gym",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/logic.test.js",
+    "start": "npx serve app"
+  }
+}
