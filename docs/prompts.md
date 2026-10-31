@@ -115,3 +115,22 @@ Cada decisión también figura en el cuerpo del commit correspondiente con el pr
   - Exporta todos los usuarios del navegador.
 
 **Verificación:** 39 tests unitarios y un recorrido en Chrome headless con 134 verificaciones, que pasó dos veces seguidas. No se probó en celulares reales.
+
+### Rediseño visual (31/10/2026)
+
+**Pedido del equipo:** hacer la interfaz más linda y menos rústica sin tocar el funcionamiento. Este pedido reemplaza el estilo de wireframe de baja fidelidad que fijaba el prompt original.
+
+**Qué decidió la herramienta:**
+
+- **Base visual:** fuente del sistema y tarjetas blancas redondeadas con sombra suave.
+- **Paleta propia:** verde azulado `#0e7c66` como acento y naranja `#e8641c` para la racha y el día de hoy, sin colores institucionales.
+- **Componentes:**
+  - checks circulares;
+  - control segmentado para los días;
+  - interruptor real para "Día de descanso";
+  - calendario con círculos llenos y la celda entera como área táctil;
+  - resumen con números grandes;
+  - barra inferior translúcida.
+- **Accesibilidad:** las animaciones se desactivan si el sistema pide reducir movimiento.
+- **Alcance del cambio:** solo estilos y marcado de presentación. No cambia la lógica, los datos ni las acciones.
+- **Verificación:** los 39 tests unitarios y las 134 verificaciones del recorrido en Chrome headless (375 y 360 px) pasan sin cambios.

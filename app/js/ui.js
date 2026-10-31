@@ -242,7 +242,7 @@ function renderCalendario(state, view, ctx) {
   const title = formatMonthTitle(cal.year, cal.month);
 
   $("calContent").innerHTML = `
-    <div class="box">
+    <div class="box cal-box">
       <div class="cal-nav">
         <button type="button" class="icon-btn" data-action="cal-month" data-delta="-1"
           aria-label="Mes anterior"${canPrev ? "" : " disabled"}>${ICONS.prev}</button>
@@ -251,13 +251,24 @@ function renderCalendario(state, view, ctx) {
           aria-label="Mes siguiente"${isCurrent ? " disabled" : ""}>${ICONS.next}</button>
       </div>
       <div class="cal-grid">${heads}${blanks}${days}</div>
-      <div class="legend"><span>● día entrenado</span>${isCurrent ? "<span>▢ hoy</span>" : ""}</div>
+      <div class="legend">
+        <span><span class="dot marked" aria-hidden="true"></span>día entrenado</span>
+        ${isCurrent ? `<span><span class="dot today" aria-hidden="true"></span>hoy</span>` : ""}
+      </div>
     </div>
     ${isCurrent ? "" : `<button type="button" class="btn ghost" data-action="cal-today">Volver al mes actual</button>`}
     <div class="box">
       <div class="box-title">Resumen</div>
-      <div class="row"><span>${isCurrent ? "Días entrenados este mes" : `Días entrenados en ${monthName(cal.month)}`}</span><span class="tag">${count}</span></div>
-      <div class="row"><span>Constancia</span><span class="tag">${monthConstancy(state.attendance, ctx.now, cal.year, cal.month)}%</span></div>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">${isCurrent ? "Días entrenados este mes" : `Días entrenados en ${monthName(cal.month)}`}</span>
+          <span class="stat-value">${count}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Constancia</span>
+          <span class="stat-value">${monthConstancy(state.attendance, ctx.now, cal.year, cal.month)}%</span>
+        </div>
+      </div>
     </div>`;
 }
 
