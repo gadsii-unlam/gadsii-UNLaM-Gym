@@ -8,6 +8,7 @@ import {
   setRest, dayStatus, toggleCompleted, completedIdsFor, removeCompletedId, addAttendance, hasAttendance,
   calendarOffset, calendarMonth, countInMonthUpTo, toggleAttendance,
   streak, streakText, constancy, monthComparison, comparisonMessage,
+  shiftMonth, monthsAgo, isMonthVisible, monthConstancy, monthName, CAL_MONTHS_BACK,
 } from "../app/js/logic.js";
 import { SEEDS } from "../app/js/seeds.js";
 
@@ -288,4 +289,42 @@ test("F07: el mensaje comparativo usa el mismo tramo del mes anterior", () => {
 test("F07: sin datos del mes anterior el mensaje no aparece", () => {
   assert.equal(comparisonMessage(["2026-10-01", "2026-10-02"], new Date(2026, 9, 5)), null);
   assert.equal(comparisonMessage([], new Date(2026, 9, 5)), null);
+});
+
+/* ---------- Navegación entre meses del calendario ---------- */
+
+test("shiftMonth cruza años en ambos sentidos", () => {
+  assert.deepEqual(shiftMonth(2026, 0, -1), { year: 2025, month: 11 });
+  assert.deepEqual(shiftMonth(2025, 11, 1), { year: 2026, month: 0 });
+  assert.deepEqual(shiftMonth(2026, 9, -13), { year: 2025, month: 8 });
+});
+
+test("calendarMonth de un mes pasado: offset propio y sin 'hoy'", () => {
+  const today = new Date(2026, 9, 31);
+  const sep = calendarMonth(["2026-09-02", "2026-09-30", "2026-10-01"], today, 2026, 8);
+  assert.equal(sep.offset, 1, "septiembre 2026 arranca martes");
+  assert.equal(sep.days.length, 30);
+  assert.deepEqual(sep.days.filter(d => d.marked).map(d => d.day), [2, 30]);
+  assert.equal(sep.days.some(d => d.isToday), false);
+  assert.equal(calendarMonth([], today, 2026, 1).days.length, 28, "febrero 2026");
+});
+
+test("solo se ven el mes actual y hasta 12 meses atrás", () => {
+  const today = new Date(2026, 9, 31);
+  assert.equal(CAL_MONTHS_BACK, 12);
+  assert.equal(monthsAgo(today, 2026, 9), 0);
+  assert.equal(monthsAgo(today, 2025, 9), 12);
+  assert.ok(isMonthVisible(today, 2026, 9));
+  assert.ok(isMonthVisible(today, 2025, 10));
+  assert.ok(isMonthVisible(today, 2025, 9));
+  assert.ok(!isMonthVisible(today, 2025, 8), "13 meses atrás no");
+  assert.ok(!isMonthVisible(today, 2026, 10), "meses futuros no");
+});
+
+test("constancia de un mes pasado se calcula sobre todo el mes", () => {
+  const today = new Date(2026, 9, 10);
+  const att = ["2026-09-01", "2026-09-02", "2026-09-03", "2026-10-01"];
+  assert.equal(monthConstancy(att, today, 2026, 8), 10); // 3/30
+  assert.equal(monthConstancy(att, today, 2026, 9), 10); // mes actual: 1/10
+  assert.equal(monthName(8), "septiembre");
 });
