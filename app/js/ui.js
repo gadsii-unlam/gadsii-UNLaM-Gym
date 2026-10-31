@@ -76,9 +76,10 @@ function renderHoy(state, view, ctx) {
     ? `<div class="hint">¡Completaste tu rutina de hoy! No te olvides de marcar tu asistencia.</div>` : "";
 
   // F05: el botón de asistencia está siempre visible, haya o no rutina ese día.
+  // F01: es un toggle y el texto refleja el estado.
   const markBtn = attended
-    ? `<button type="button" class="btn primary done" data-action="mark-attendance" data-source="hoy">✓ Viniste hoy</button>`
-    : `<button type="button" class="btn primary" data-action="mark-attendance" data-source="hoy">Marcar que vine hoy</button>`;
+    ? `<button type="button" class="btn primary done" data-action="toggle-attendance" data-source="hoy" aria-pressed="true">✓ Viniste hoy · tocar para deshacer</button>`
+    : `<button type="button" class="btn primary" data-action="toggle-attendance" data-source="hoy" aria-pressed="false">Marcar que vine hoy</button>`;
 
   $("hoyContent").innerHTML = `
     <div class="box">
@@ -199,7 +200,7 @@ function renderCalendario(state, view, ctx) {
     const cls = `cal-day${d.marked ? " marked" : ""}${d.isToday ? " today" : ""}`;
     const label = `${d.day}${d.marked ? ", entrenado" : ""}`;
     return d.isToday
-      ? `<button type="button" class="${cls}" data-action="mark-attendance" data-source="calendario" aria-label="Hoy ${label}" aria-pressed="${d.marked}">${d.day}</button>`
+      ? `<button type="button" class="${cls}" data-action="toggle-attendance" data-source="calendario" aria-label="Hoy ${label}" aria-pressed="${d.marked}">${d.day}</button>`
       : `<div class="${cls}" aria-label="${label}">${d.day}</div>`;
   }).join("");
 

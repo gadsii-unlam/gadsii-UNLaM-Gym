@@ -2,8 +2,8 @@
 import { renderApp } from "./ui.js";
 import { getState, initStore, refresh, resolveUserId, update } from "./store.js";
 import {
-  addAttendance, addExercise, allExerciseIds, dayKeyOf, deleteExercise, editExercise, findExercise,
-  localDateKey, makeId, removeCompletedId, setRest, toggleCompleted, validateExercise,
+  addExercise, allExerciseIds, dayKeyOf, deleteExercise, editExercise, findExercise,
+  localDateKey, makeId, removeCompletedId, setRest, toggleAttendance, toggleCompleted, validateExercise,
 } from "./logic.js";
 
 const userId = resolveUserId(location.search);
@@ -54,9 +54,10 @@ const actions = {
     rerender();
   },
 
-  "mark-attendance": () => {
+  // F01: el botón de Hoy y la celda de hoy en el Calendario son un toggle.
+  "toggle-attendance": () => {
     const { todayKey } = today();
-    update(s => ({ ...s, attendance: addAttendance(s.attendance, todayKey) }));
+    update(s => ({ ...s, attendance: toggleAttendance(s.attendance, todayKey).attendance }));
     rerender();
   },
 

@@ -199,6 +199,15 @@ export function addAttendance(attendance, dateKey) {
   return normalizeAttendance([...attendance, dateKey]);
 }
 
+// Marca o desmarca la asistencia de la fecha. Devuelve { attendance, marked }.
+export function toggleAttendance(attendance, dateKey) {
+  const marked = !attendance.includes(dateKey);
+  return {
+    attendance: marked ? addAttendance(attendance, dateKey) : attendance.filter(d => d !== dateKey),
+    marked,
+  };
+}
+
 // Al eliminar un ejercicio se borra su marca en todas las fechas.
 export function removeCompletedId(completed, id) {
   const next = {};

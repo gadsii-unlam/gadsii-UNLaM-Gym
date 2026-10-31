@@ -6,7 +6,7 @@ import {
   normalizeAttendance, pruneCompleted, stateFromSeed, isValidState, DAY_KEYS,
   validateExercise, formatDose, makeId, addExercise, editExercise, deleteExercise,
   setRest, dayStatus, toggleCompleted, completedIdsFor, removeCompletedId, addAttendance, hasAttendance,
-  calendarOffset, calendarMonth, countInMonthUpTo,
+  calendarOffset, calendarMonth, countInMonthUpTo, toggleAttendance,
 } from "../app/js/logic.js";
 import { SEEDS } from "../app/js/seeds.js";
 
@@ -214,4 +214,26 @@ test("calendarMonth marca días entrenados y hoy", () => {
   assert.deepEqual(cal.days.filter(d => d.marked).map(d => d.day), [2, 31]);
   assert.deepEqual(cal.days.filter(d => d.isToday).map(d => d.day), [31]);
   assert.equal(countInMonthUpTo(["2026-10-02", "2026-10-20", "2026-09-02"], 2026, 9, 15), 1);
+});
+
+/* ---------- F01: asistencia como toggle ---------- */
+
+test("F01: marcar y desmarcar la asistencia de hoy", () => {
+  const att = ["2026-10-29", "2026-10-30"];
+  const marked = toggleAttendance(att, "2026-10-31");
+  assert.equal(marked.marked, true);
+  assert.deepEqual(marked.attendance, ["2026-10-29", "2026-10-30", "2026-10-31"]);
+
+  const unmarked = toggleAttendance(marked.attendance, "2026-10-31");
+  assert.equal(unmarked.marked, false);
+  assert.deepEqual(unmarked.attendance, att);
+  assert.deepEqual(att, ["2026-10-29", "2026-10-30"], "no muta el arreglo original");
+});
+
+test("F01: desmarcar recalcula el calendario", () => {
+  const today = new Date(2026, 9, 31);
+  const { attendance } = toggleAttendance(["2026-10-30", "2026-10-31"], "2026-10-31");
+  const cal = calendarMonth(attendance, today);
+  assert.equal(cal.days.find(d => d.isToday).marked, false);
+  assert.equal(cal.days.filter(d => d.marked).length, 1);
 });
