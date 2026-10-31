@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   localDateKey, parseDateKey, addDays, dayKeyOf, formatHeaderDate, formatMonthTitle, isoWithOffset,
   normalizeAttendance, pruneCompleted, stateFromSeed, isValidState, DAY_KEYS,
+  validateExercise, formatDose, makeId, addExercise, editExercise, deleteExercise,
 } from "../app/js/logic.js";
 import { SEEDS } from "../app/js/seeds.js";
 
@@ -63,4 +64,64 @@ test("los seeds generan un estado válido sin modificar el seed", () => {
     assert.notEqual(SEEDS[userId].routine.lun.exercises.at(-1).id, "x");
   }
   assert.deepEqual(stateFromSeed("U1", SEEDS.U1).attendance, []);
+});
+
+/* ---------- F02: validación del formulario ---------- */
+
+const valid = { name: "Sentadilla", series: "4", reps: "10", unit: "reps" };
+
+test("F02: acepta datos válidos y recorta el nombre", () => {
+  const r = validateExercise({ ...valid, name: "  Sentadilla  " });
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.value, { name: "Sentadilla", series: 4, reps: 10, unit: "reps" });
+  assert.equal(validateExercise({ ...valid, name: "x".repeat(40) }).ok, true);
+  assert.equal(validateExercise({ ...valid, series: "1", reps: "1" }).ok, true);
+  assert.equal(validateExercise({ ...valid, series: "20", reps: "600", unit: "seg" }).ok, true);
+});
+
+test("F02: rechaza nombre vacío, solo espacios o de más de 40 caracteres", () => {
+  assert.ok(validateExercise({ ...valid, name: "" }).errors.name);
+  assert.ok(validateExercise({ ...valid, name: "    " }).errors.name);
+  assert.ok(validateExercise({ ...valid, name: "x".repeat(41) }).errors.name);
+});
+
+test("F02: series entero de 1 a 20", () => {
+  for (const series of ["0", "21", "3x12", "2.5", "-1", "", "abc"]) {
+    const r = validateExercise({ ...valid, series });
+    assert.equal(r.ok, false, series);
+    assert.ok(r.errors.series, series);
+    assert.equal(r.value, null);
+  }
+});
+
+test("F02: repeticiones o segundos entero de 1 a 600 y unidad válida", () => {
+  for (const reps of ["0", "601", "10seg", "1e2", ""]) {
+    assert.ok(validateExercise({ ...valid, reps }).errors.reps, reps);
+  }
+  assert.ok(validateExercise({ ...valid, unit: "kg" }).errors.unit);
+});
+
+test("formatDose muestra reps o segundos", () => {
+  assert.equal(formatDose({ series: 4, reps: 10, unit: "reps" }), "4x10");
+  assert.equal(formatDose({ series: 3, reps: 40, unit: "seg" }), "3x40 seg");
+});
+
+test("makeId genera ids únicos con formato estable", () => {
+  const ids = new Set(["ex_aaaaaa"]);
+  let calls = 0;
+  const seq = [0.5, 0.0123456789, 0.987654321]; // 0.5 da un id corto y se descarta
+  const id = makeId(ids, () => seq[calls++]);
+  assert.match(id, /^ex_[0-9a-z]{6}$/);
+  assert.ok(!ids.has(id));
+});
+
+test("editar conserva el id y eliminar saca solo ese ejercicio", () => {
+  const routine = stateFromSeed("demo", SEEDS.demo).routine;
+  const added = addExercise(routine, "sab", { name: "Remo", series: 3, reps: 10, unit: "reps" }, "ex_nuevo1");
+  assert.equal(added.sab.exercises[0].id, "ex_nuevo1");
+  assert.equal(routine.sab.exercises.length, 0, "no muta la rutina original");
+  const edited = editExercise(added, "lun", "ex_d_lun2", { name: "Prensa 45°", series: 4, reps: 12, unit: "reps" });
+  assert.deepEqual(edited.lun.exercises[1], { id: "ex_d_lun2", name: "Prensa 45°", series: 4, reps: 12, unit: "reps" });
+  const deleted = deleteExercise(edited, "lun", "ex_d_lun1");
+  assert.deepEqual(deleted.lun.exercises.map(e => e.id), ["ex_d_lun2", "ex_d_lun3", "ex_d_lun4"]);
 });

@@ -86,3 +86,78 @@ export function isValidState(s, userId) {
     !!s.routine && DAY_KEYS.every(k => s.routine[k] && Array.isArray(s.routine[k].exercises)) &&
     Array.isArray(s.attendance) && !!s.completed && typeof s.completed === "object";
 }
+
+/* ---------- Ejercicios ---------- */
+
+export const LIMITS = { nameMax: 40, seriesMin: 1, seriesMax: 20, repsMin: 1, repsMax: 600 };
+export const UNITS = ["reps", "seg"];
+
+// "4x10" o "3x40 seg"
+export function formatDose(ex) {
+  return ex.unit === "seg" ? `${ex.series}x${ex.reps} seg` : `${ex.series}x${ex.reps}`;
+}
+
+// Entero escrito solo con dígitos ("12", " 12 "); cualquier otra cosa es NaN.
+function toInt(v) {
+  if (typeof v === "number") return Number.isInteger(v) ? v : NaN;
+  const s = String(v ?? "").trim();
+  return /^\d{1,6}$/.test(s) ? Number(s) : NaN;
+}
+
+// Valida los datos del formulario. El nombre se guarda sin espacios al
+// inicio ni al final. Devuelve { ok, errors, value }.
+export function validateExercise(input) {
+  const errors = {};
+  const name = String(input.name ?? "").trim();
+  if (name.length === 0) errors.name = "Ingresá el nombre del ejercicio.";
+  else if (name.length > LIMITS.nameMax) errors.name = `El nombre puede tener hasta ${LIMITS.nameMax} caracteres.`;
+
+  const series = toInt(input.series);
+  if (!(series >= LIMITS.seriesMin && series <= LIMITS.seriesMax)) {
+    errors.series = `Ingresá un número entero entre ${LIMITS.seriesMin} y ${LIMITS.seriesMax}.`;
+  }
+
+  const unit = input.unit;
+  if (!UNITS.includes(unit)) errors.unit = "Elegí repeticiones o segundos.";
+
+  const reps = toInt(input.reps);
+  if (!(reps >= LIMITS.repsMin && reps <= LIMITS.repsMax)) {
+    errors.reps = `Ingresá un número entero entre ${LIMITS.repsMin} y ${LIMITS.repsMax}.`;
+  }
+
+  const ok = Object.keys(errors).length === 0;
+  return { ok, errors, value: ok ? { name, series, reps, unit } : null };
+}
+
+export function allExerciseIds(routine) {
+  return new Set(DAY_KEYS.flatMap(k => routine[k].exercises.map(e => e.id)));
+}
+
+// Id único y estable: se genera al crear el ejercicio y no cambia al editarlo.
+export function makeId(existingIds, rand = Math.random) {
+  for (;;) {
+    const id = "ex_" + rand().toString(36).slice(2, 8);
+    if (id.length === 9 && !existingIds.has(id)) return id;
+  }
+}
+
+const withDay = (routine, dayKey, fn) => ({ ...routine, [dayKey]: fn(routine[dayKey]) });
+
+export function addExercise(routine, dayKey, value, id) {
+  return withDay(routine, dayKey, d => ({ ...d, exercises: [...d.exercises, { id, ...value }] }));
+}
+
+export function editExercise(routine, dayKey, id, value) {
+  return withDay(routine, dayKey, d => ({
+    ...d,
+    exercises: d.exercises.map(e => (e.id === id ? { ...value, id } : e)),
+  }));
+}
+
+export function deleteExercise(routine, dayKey, id) {
+  return withDay(routine, dayKey, d => ({ ...d, exercises: d.exercises.filter(e => e.id !== id) }));
+}
+
+export function findExercise(routine, dayKey, id) {
+  return routine[dayKey].exercises.find(e => e.id === id) || null;
+}

@@ -1,4 +1,5 @@
 // Render de las pantallas. Lee el estado y la vista; no modifica datos.
+import { DAY_KEYS, DAY_LABELS, formatDose } from "./logic.js";
 
 const $ = id => document.getElementById(id);
 
@@ -27,7 +28,102 @@ export function renderNav(screen) {
     </button>`).join("");
 }
 
-export function renderApp(state, view) {
+/* ---------- Rutina ---------- */
+
+function exerciseFormHtml(form) {
+  const v = form.values;
+  const e = form.errors || {};
+  const err = (field) => e[field]
+    ? `<div class="field-error" id="err-${field}">${esc(e[field])}</div>` : "";
+  const aria = (field) => e[field] ? ` aria-invalid="true" aria-describedby="err-${field}"` : "";
+  const inv = (field) => e[field] ? " invalid" : "";
+  return `
+    <form class="box" id="exerciseForm" novalidate>
+      <div class="box-title">${form.mode === "edit" ? "Editar ejercicio" : "Nuevo ejercicio"}</div>
+      <div class="field">
+        <label for="fName">Nombre</label>
+        <input id="fName" name="name" class="form-input${inv("name")}" type="text" autocomplete="off"
+          placeholder="Ej: Curl de bíceps" value="${esc(v.name)}"${aria("name")}>
+        ${err("name")}
+      </div>
+      <div class="field">
+        <label for="fSeries">Series</label>
+        <input id="fSeries" name="series" class="form-input${inv("series")}" type="text" inputmode="numeric"
+          autocomplete="off" placeholder="Ej: 3" value="${esc(v.series)}"${aria("series")}>
+        ${err("series")}
+      </div>
+      <div class="field">
+        <label for="fReps">Repeticiones o segundos</label>
+        <div class="field-inline">
+          <input id="fReps" name="reps" class="form-input${inv("reps")}" type="text" inputmode="numeric"
+            autocomplete="off" placeholder="Ej: 12" value="${esc(v.reps)}"${aria("reps")}>
+          <select id="fUnit" name="unit" class="form-input${inv("unit")}" aria-label="Unidad">
+            <option value="reps"${v.unit === "reps" ? " selected" : ""}>reps</option>
+            <option value="seg"${v.unit === "seg" ? " selected" : ""}>seg</option>
+          </select>
+        </div>
+        ${err("reps")}${err("unit")}
+      </div>
+      <div class="btn-row">
+        <button type="submit" class="btn primary">Guardar</button>
+        <button type="button" class="btn" data-action="cancel-form">Cancelar</button>
+      </div>
+    </form>`;
+}
+
+function rutinaRowHtml(ex, view) {
+  if (view.confirmDeleteId === ex.id) {
+    return `
+      <div class="confirm-row">
+        ¿Eliminar "${esc(ex.name)}"?
+        <div class="btn-row">
+          <button type="button" class="btn danger" data-action="confirm-delete" data-id="${esc(ex.id)}">Sí, eliminar</button>
+          <button type="button" class="btn" data-action="cancel-delete">Cancelar</button>
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="row">
+      <span class="row-name">${esc(ex.name)}</span>
+      <div class="row-actions">
+        <span class="tag">${esc(formatDose(ex))}</span>
+        <button type="button" class="icon-btn" data-action="open-edit" data-id="${esc(ex.id)}" aria-label="Editar ${esc(ex.name)}">✎</button>
+        <button type="button" class="icon-btn danger" data-action="ask-delete" data-id="${esc(ex.id)}" aria-label="Eliminar ${esc(ex.name)}">×</button>
+      </div>
+    </div>`;
+}
+
+function renderRutina(state, view, ctx) {
+  const dayKey = view.rutinaDay;
+  const day = state.routine[dayKey];
+
+  const tabs = DAY_KEYS.map(k => `
+    <button type="button" class="tabday${k === dayKey ? " sel" : ""}${k === ctx.todayDay ? " today" : ""}"
+      data-action="select-day" data-day="${k}" aria-pressed="${k === dayKey}">${DAY_LABELS[k]}</button>`).join("");
+
+  let body;
+  if (day.rest) {
+    body = `<div class="empty-state">Día de descanso.</div>`;
+  } else {
+    body = day.exercises.map(ex => rutinaRowHtml(ex, view)).join("");
+  }
+
+  const form = view.form ? exerciseFormHtml(view.form) : "";
+  const addBtn = !day.rest && !view.form
+    ? `<button type="button" class="btn ghost" data-action="open-add">+ Agregar ejercicio</button>` : "";
+
+  $("rutinaContent").innerHTML = `
+    <div class="tabs">${tabs}</div>
+    <div class="box">
+      <div class="box-head"><div class="box-title">${DAY_LABELS[dayKey]}</div></div>
+      ${body}
+    </div>
+    ${addBtn}
+    ${form}`;
+}
+
+export function renderApp(state, view, ctx) {
   showScreen(view.screen);
   renderNav(view.screen);
+  renderRutina(state, view, ctx);
 }
