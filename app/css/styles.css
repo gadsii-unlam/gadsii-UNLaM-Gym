@@ -124,6 +124,7 @@ a.btn{text-decoration:none;color:inherit;}
 .btn.primary.done{background:#fff;color:var(--ink);border-style:dashed;}
 .btn.ghost{border-style:dashed;color:#444;}
 .btn-row{display:flex;gap:8px;margin-top:10px;}
+.content > .btn.ghost{margin-bottom:12px;}
 .btn-row .btn{margin-top:0;}
 .icon-btn{
   width:var(--tap);height:var(--tap);flex:0 0 auto;
@@ -224,3 +225,12 @@ a.btn{text-decoration:none;color:inherit;}
 .admin-dl dt{color:#555;}
 .admin-dl dd{margin:0;font-weight:bold;overflow-wrap:anywhere;text-align:right;}
 .admin-msg{font-size:12px;margin-top:8px;}
+.admin-dl .warn dd{color:var(--error);}
+.admin-intro p{font-size:13px;line-height:1.5;margin:0 0 8px;}
+.admin-intro p:last-child{margin-bottom:0;}
+.admin-intro code{font-size:12px;background:#fff;border:1px solid var(--line-soft);padding:0 3px;overflow-wrap:anywhere;}
+.admin-user{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:var(--tap);padding:4px 0;border-bottom:1px dashed var(--line-soft);font-size:13px;}
+.admin-user:last-child{border-bottom:none;}
+.admin-user em{color:#555;}
+.admin-user.sel{font-weight:bold;}
+.btn.small-link{width:auto;flex:0 0 auto;padding:10px 16px;margin:0;}

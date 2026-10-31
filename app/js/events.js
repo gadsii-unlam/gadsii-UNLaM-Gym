@@ -7,6 +7,7 @@ import { isoWithOffset, localDateKey } from "./logic.js";
 import { PREFIX, readStorage, writeStorage } from "./store.js";
 
 const QUEUE_KEY = PREFIX + "eventQueue";
+const STATS_KEY = PREFIX + "eventStats";
 const BATCH_SIZE = 50;
 const MAX_QUEUE = 5000;
 
@@ -61,6 +62,8 @@ export async function flush() {
         body: JSON.stringify({ events: batch }),
       });
       writeQueue(readQueue().slice(batch.length));
+      const stats = readStats();
+      writeStorage(STATS_KEY, JSON.stringify({ sent: stats.sent + batch.length, lastSentAt: isoWithOffset(new Date()) }));
     }
   } catch {
     // Sin conexión o endpoint caído: se reintenta más tarde.
@@ -71,6 +74,16 @@ export async function flush() {
 
 export function queueSize() {
   return readQueue().length;
+}
+
+// Eventos enviados desde este navegador y último envío.
+export function readStats() {
+  try {
+    const s = JSON.parse(readStorage(STATS_KEY));
+    return s && typeof s.sent === "number" ? s : { sent: 0, lastSentAt: null };
+  } catch {
+    return { sent: 0, lastSentAt: null };
+  }
 }
 
 // app_open al cargar y al volver a la pestaña después de más de 30 minutos.
