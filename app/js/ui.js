@@ -253,7 +253,7 @@ function renderAdmin(admin) {
       <div class="box-title">Estado</div>
       <dl class="admin-dl">
         <div><dt>Usuario activo</dt><dd>${esc(admin.userId)}</dd></div>
-        <div><dt>Eventos en cola</dt><dd>${admin.queueSize}</dd></div>
+        <div><dt>Eventos en cola (todos los usuarios del celular)</dt><dd>${admin.queueSize}</dd></div>
         <div><dt>Endpoint</dt><dd>${admin.endpoint ? "configurado" : "vacío (solo cola local)"}</dd></div>
         <div><dt>Días con asistencia</dt><dd>${admin.attendanceCount}</dd></div>
         <div><dt>Clave</dt><dd>${esc(admin.storageKey)}</dd></div>
