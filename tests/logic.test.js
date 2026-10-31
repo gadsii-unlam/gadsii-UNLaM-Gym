@@ -7,6 +7,7 @@ import {
   validateExercise, formatDose, makeId, addExercise, editExercise, deleteExercise,
   setRest, dayStatus, toggleCompleted, completedIdsFor, removeCompletedId, addAttendance, hasAttendance,
   calendarOffset, calendarMonth, countInMonthUpTo, toggleAttendance,
+  streak, streakText, constancy, monthComparison, comparisonMessage,
 } from "../app/js/logic.js";
 import { SEEDS } from "../app/js/seeds.js";
 
@@ -236,4 +237,55 @@ test("F01: desmarcar recalcula el calendario", () => {
   const cal = calendarMonth(attendance, today);
   assert.equal(cal.days.find(d => d.isToday).marked, false);
   assert.equal(cal.days.filter(d => d.marked).length, 1);
+});
+
+/* ---------- F07: racha, constancia y mensaje desde attendance ---------- */
+
+test("racha: termina hoy si hoy está marcado", () => {
+  assert.equal(streak(["2026-10-29", "2026-10-30", "2026-10-31"], "2026-10-31"), 3);
+});
+
+test("racha: si hoy no marcó, cuenta la que termina ayer", () => {
+  assert.equal(streak(["2026-10-29", "2026-10-30"], "2026-10-31"), 2);
+});
+
+test("racha: cortada por un día sin asistencia", () => {
+  assert.equal(streak(["2026-10-27", "2026-10-28", "2026-10-30", "2026-10-31"], "2026-10-31"), 2);
+  assert.equal(streak(["2026-10-28", "2026-10-29"], "2026-10-31"), 0, "sin ayer ni hoy es 0");
+});
+
+test("racha: vacía y cruzando meses", () => {
+  assert.equal(streak([], "2026-10-31"), 0);
+  assert.equal(streak(["2026-09-30", "2026-10-01"], "2026-10-01"), 2);
+});
+
+test("textos de racha en singular y plural", () => {
+  assert.equal(streakText(0), "Empezá tu racha hoy");
+  assert.equal(streakText(1), "1 día seguido");
+  assert.equal(streakText(3), "3 días seguidos");
+});
+
+test("constancia: días con asistencia del mes / días transcurridos, redondeado", () => {
+  const att = ["2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03"];
+  assert.equal(constancy(att, new Date(2026, 9, 3)), 100);
+  assert.equal(constancy(att, new Date(2026, 9, 6)), 50);
+  assert.equal(constancy(att, new Date(2026, 9, 31)), 10); // 3/31 = 9,67 → 10
+  assert.equal(constancy([], new Date(2026, 9, 1)), 0);
+});
+
+test("F07: el mensaje comparativo usa el mismo tramo del mes anterior", () => {
+  const att = ["2026-09-02", "2026-09-20", "2026-10-02", "2026-10-05"];
+  assert.deepEqual(monthComparison(att, new Date(2026, 9, 10)), { current: 2, previous: 1 });
+  assert.match(comparisonMessage(att, new Date(2026, 9, 10)), /2 días contra 1 día/);
+  // A fin de mes septiembre suma 2: empate → sin mensaje.
+  assert.equal(comparisonMessage(att, new Date(2026, 9, 31)), null);
+  // Marzo 31 contra febrero (28 días): el tramo anterior llega hasta el 28.
+  assert.deepEqual(monthComparison(["2026-02-28", "2026-03-31"], new Date(2026, 2, 31)), { current: 1, previous: 1 });
+  // Enero contra diciembre del año anterior.
+  assert.deepEqual(monthComparison(["2025-12-01", "2026-01-01"], new Date(2026, 0, 1)), { current: 1, previous: 1 });
+});
+
+test("F07: sin datos del mes anterior el mensaje no aparece", () => {
+  assert.equal(comparisonMessage(["2026-10-01", "2026-10-02"], new Date(2026, 9, 5)), null);
+  assert.equal(comparisonMessage([], new Date(2026, 9, 5)), null);
 });

@@ -242,3 +242,54 @@ export function calendarMonth(attendance, today) {
   }
   return { year, month, offset: calendarOffset(year, month), days };
 }
+
+/* ---------- Racha, constancia y refuerzo (todo desde attendance) ---------- */
+
+// Días consecutivos con asistencia que terminan hoy; si hoy todavía no
+// marcó, los que terminan ayer. Sin asistencia ayer ni hoy: 0.
+export function streak(attendance, todayKey) {
+  const set = new Set(attendance);
+  let cursor = set.has(todayKey) ? todayKey : addDays(todayKey, -1);
+  let n = 0;
+  while (set.has(cursor)) {
+    n++;
+    cursor = addDays(cursor, -1);
+  }
+  return n;
+}
+
+export const daysText = n => `${n} ${n === 1 ? "día" : "días"}`;
+
+// "Empezá tu racha hoy" / "1 día seguido" / "3 días seguidos"
+export function streakText(n) {
+  if (n === 0) return "Empezá tu racha hoy";
+  return n === 1 ? "1 día seguido" : `${n} días seguidos`;
+}
+
+// Días con asistencia en el mes actual / días transcurridos (incluido hoy), en %.
+export function constancy(attendance, today) {
+  const day = today.getDate();
+  return Math.round((countInMonthUpTo(attendance, today.getFullYear(), today.getMonth(), day) / day) * 100);
+}
+
+// Días entrenados del 1 a hoy contra el mismo tramo del mes anterior.
+// Si el mes anterior es más corto, su tramo llega hasta su último día.
+export function monthComparison(attendance, today) {
+  const y = today.getFullYear();
+  const m = today.getMonth();
+  const py = m === 0 ? y - 1 : y;
+  const pm = m === 0 ? 11 : m - 1;
+  const day = today.getDate();
+  return {
+    current: countInMonthUpTo(attendance, y, m, day),
+    previous: countInMonthUpTo(attendance, py, pm, Math.min(day, daysInMonth(py, pm))),
+  };
+}
+
+// Mensaje comparativo solo si se puede calcular con datos reales:
+// hace falta asistencia en el mes anterior, y se muestra solo si mejoró.
+export function comparisonMessage(attendance, today) {
+  const { current, previous } = monthComparison(attendance, today);
+  if (previous === 0 || current <= previous) return null;
+  return `Vas mejor que el mes pasado: ${daysText(current)} contra ${daysText(previous)} a esta altura.`;
+}

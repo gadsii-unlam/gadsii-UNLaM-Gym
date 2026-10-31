@@ -1,11 +1,12 @@
 // Render de las pantallas. Lee el estado y la vista; no modifica datos.
 import {
   DAY_KEYS, DAY_LABELS, calendarMonth, completedIdsFor, dayStatus, formatDose, formatHeaderDate,
-  formatMonthTitle, hasAttendance,
+  formatMonthTitle, hasAttendance, comparisonMessage, constancy, streak, streakText,
 } from "./logic.js";
 
 const $ = id => document.getElementById(id);
 const EMPTY_DAY_TEXT = "Todavía no cargaste ejercicios para este día";
+const FLAME_SVG = `<svg viewBox="0 0 24 24"><path d="M12 2c1 3-3 4-3 8a3 3 0 0 0 6 0c1 1 2 2 2 4a5 5 0 0 1-10 0c0-4 3-5 3-9 0-1 1-2 2-3z"/></svg>`;
 
 const NAV = [
   { id: "hoy", label: "Hoy" },
@@ -75,6 +76,20 @@ function renderHoy(state, view, ctx) {
   const hint = allDone && !attended
     ? `<div class="hint">¡Completaste tu rutina de hoy! No te olvides de marcar tu asistencia.</div>` : "";
 
+  // F07: racha, festejo y comparación salen de state.attendance.
+  const n = streak(state.attendance, ctx.todayKey);
+  const badge = `
+    <div class="streak-badge">
+      <span class="flame" aria-hidden="true">${FLAME_SVG}</span>
+      <span>${esc(streakText(n))}</span>
+    </div>`;
+  const comparison = comparisonMessage(state.attendance, ctx.now);
+  const celebrate = attended
+    ? `<div class="celebrate" role="status">
+        <div class="msg">¡${esc(streakText(n))}!</div>
+        ${comparison ? `<div class="sub">${esc(comparison)}</div>` : ""}
+      </div>` : "";
+
   // F05: el botón de asistencia está siempre visible, haya o no rutina ese día.
   // F01: es un toggle y el texto refleja el estado.
   const markBtn = attended
@@ -82,11 +97,13 @@ function renderHoy(state, view, ctx) {
     : `<button type="button" class="btn primary" data-action="toggle-attendance" data-source="hoy" aria-pressed="false">Marcar que vine hoy</button>`;
 
   $("hoyContent").innerHTML = `
+    ${badge}
     <div class="box">
       <div class="box-title">Tu rutina de hoy — ${DAY_LABELS[ctx.todayDay]}</div>
       ${routineBox}
     </div>
     ${hint}
+    ${celebrate}
     ${markBtn}`;
 }
 
@@ -214,6 +231,7 @@ function renderCalendario(state, view, ctx) {
     <div class="box">
       <div class="box-title">Resumen</div>
       <div class="row"><span>Días entrenados este mes</span><span class="tag">${count}</span></div>
+      <div class="row"><span>Constancia</span><span class="tag">${constancy(state.attendance, ctx.now)}%</span></div>
     </div>`;
 }
 
