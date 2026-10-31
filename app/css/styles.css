@@ -200,9 +200,10 @@ a.btn{text-decoration:none;color:inherit;}
   font-size:11px;cursor:pointer;color:#666;padding:6px 2px;
 }
 .navitem:last-child{border-right:none;}
-.navitem .ic{width:18px;height:18px;border:1.4px solid #999;margin-bottom:4px;display:block;}
-.navitem.active{color:var(--ink);font-weight:bold;}
-.navitem.active .ic{border-color:var(--ink);background:var(--fill);}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block;}
+.navitem .icon{width:24px;height:24px;margin-bottom:3px;}
+.navitem.active{color:var(--ink);font-weight:bold;box-shadow:inset 0 3px 0 var(--ink);background:var(--fill-soft);}
+.navitem.active .icon{stroke-width:2.2;}
 
 .empty-state{text-align:center;padding:24px 8px;color:#555;font-size:13px;line-height:1.5;}
 .empty-state .btn{margin-top:12px;}

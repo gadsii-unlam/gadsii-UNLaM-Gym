@@ -8,6 +8,19 @@ const $ = id => document.getElementById(id);
 const EMPTY_DAY_TEXT = "Todavía no cargaste ejercicios para este día";
 const FLAME_SVG = `<svg viewBox="0 0 24 24"><path d="M12 2c1 3-3 4-3 8a3 3 0 0 0 6 0c1 1 2 2 2 4a5 5 0 0 1-10 0c0-4 3-5 3-9 0-1 1-2 2-3z"/></svg>`;
 
+// Íconos de trazo (24×24), heredan el color del texto.
+const icon = paths => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths}</svg>`;
+const ICONS = {
+  hoy: icon(`<path d="M6.5 7v10M3.5 9.5v5M17.5 7v10M20.5 9.5v5M6.5 12h11"/>`),
+  rutina: icon(`<rect x="5" y="4" width="14" height="17" rx="1"/><path d="M9 4V2.8h6V4M8.5 9.5h7M8.5 13.5h7M8.5 17.5h4"/>`),
+  calendario: icon(`<rect x="3.5" y="5" width="17" height="15.5" rx="1"/><path d="M3.5 10h17M8 3v4M16 3v4"/>`),
+  cuota: icon(`<rect x="3" y="6" width="18" height="12.5" rx="1.5"/><path d="M3 10.5h18M6.5 15h4"/>`),
+  edit: icon(`<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>`),
+  trash: icon(`<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/>`),
+  prev: icon(`<path d="M14.5 5.5L8 12l6.5 6.5"/>`),
+  next: icon(`<path d="M9.5 5.5L16 12l-6.5 6.5"/>`),
+};
+
 const NAV = [
   { id: "hoy", label: "Hoy" },
   { id: "rutina", label: "Rutina" },
@@ -29,7 +42,7 @@ export function showScreen(screen) {
 export function renderNav(screen) {
   $("navbar").innerHTML = NAV.map(n => `
     <button type="button" class="navitem${n.id === screen ? " active" : ""}" data-action="nav" data-screen="${n.id}"${n.id === screen ? ' aria-current="page"' : ""}>
-      <span class="ic" aria-hidden="true"></span>${n.label}
+      ${ICONS[n.id]}${n.label}
     </button>`).join("");
 }
 
@@ -166,8 +179,8 @@ function rutinaRowHtml(ex, view) {
       <span class="row-name">${esc(ex.name)}</span>
       <div class="row-actions">
         <span class="tag">${esc(formatDose(ex))}</span>
-        <button type="button" class="icon-btn" data-action="open-edit" data-id="${esc(ex.id)}" aria-label="Editar ${esc(ex.name)}">✎</button>
-        <button type="button" class="icon-btn danger" data-action="ask-delete" data-id="${esc(ex.id)}" aria-label="Eliminar ${esc(ex.name)}">×</button>
+        <button type="button" class="icon-btn" data-action="open-edit" data-id="${esc(ex.id)}" aria-label="Editar ${esc(ex.name)}">${ICONS.edit}</button>
+        <button type="button" class="icon-btn danger" data-action="ask-delete" data-id="${esc(ex.id)}" aria-label="Eliminar ${esc(ex.name)}">${ICONS.trash}</button>
       </div>
     </div>`;
 }
