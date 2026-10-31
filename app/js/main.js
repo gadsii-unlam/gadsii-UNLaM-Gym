@@ -1,9 +1,9 @@
 // Punto de entrada: arma la vista, conecta acciones y renderiza.
 import { renderApp } from "./ui.js";
-import { getState, initStore, resolveUserId, update } from "./store.js";
+import { getState, initStore, refresh, resolveUserId, update } from "./store.js";
 import {
-  addExercise, allExerciseIds, dayKeyOf, deleteExercise, editExercise, findExercise,
-  localDateKey, makeId, setRest, validateExercise,
+  addAttendance, addExercise, allExerciseIds, dayKeyOf, deleteExercise, editExercise, findExercise,
+  localDateKey, makeId, removeCompletedId, setRest, toggleCompleted, validateExercise,
 } from "./logic.js";
 
 const userId = resolveUserId(location.search);
@@ -47,6 +47,25 @@ function openAdd() {
 
 const actions = {
   nav: el => go(el.dataset.screen),
+
+  "toggle-ex": el => {
+    const { todayKey } = today();
+    update(s => ({ ...s, completed: toggleCompleted(s.completed, todayKey, el.dataset.id) }));
+    rerender();
+  },
+
+  "mark-attendance": () => {
+    const { todayKey } = today();
+    update(s => ({ ...s, attendance: addAttendance(s.attendance, todayKey) }));
+    rerender();
+  },
+
+  // Desde Hoy con el día vacío: abre Rutina en el día de hoy con el formulario.
+  "go-add-today": () => {
+    view.rutinaDay = today().todayDay;
+    go("rutina");
+    openAdd();
+  },
 
   "select-day": el => {
     view.rutinaDay = el.dataset.day;
@@ -97,7 +116,11 @@ const actions = {
   "confirm-delete": el => {
     const id = el.dataset.id;
     const dayKey = view.rutinaDay;
-    update(s => ({ ...s, routine: deleteExercise(s.routine, dayKey, id) }));
+    update(s => ({
+      ...s,
+      routine: deleteExercise(s.routine, dayKey, id),
+      completed: removeCompletedId(s.completed, id),
+    }));
     view.confirmDeleteId = null;
     rerender();
   },
@@ -144,6 +167,22 @@ document.addEventListener("submit", e => {
   if (e.target.id !== "exerciseForm") return;
   e.preventDefault();
   submitExerciseForm(e.target);
+});
+
+// Cambio de día con la app abierta: las marcas de completado se reinician
+// solas y Hoy pasa a mostrar la rutina del nuevo día.
+let renderedDay = today().todayKey;
+function checkDayChange() {
+  const { todayKey } = today();
+  if (todayKey === renderedDay) return;
+  renderedDay = todayKey;
+  refresh();
+  if (!view.form) view.rutinaDay = today().todayDay;
+  rerender();
+}
+setInterval(checkDayChange, 60 * 1000);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") checkDayChange();
 });
 
 rerender();

@@ -5,7 +5,7 @@ import {
   localDateKey, parseDateKey, addDays, dayKeyOf, formatHeaderDate, formatMonthTitle, isoWithOffset,
   normalizeAttendance, pruneCompleted, stateFromSeed, isValidState, DAY_KEYS,
   validateExercise, formatDose, makeId, addExercise, editExercise, deleteExercise,
-  setRest, dayStatus,
+  setRest, dayStatus, toggleCompleted, completedIdsFor, removeCompletedId, addAttendance, hasAttendance,
 } from "../app/js/logic.js";
 import { SEEDS } from "../app/js/seeds.js";
 
@@ -142,4 +142,44 @@ test("F04: el descanso es un flag y un día sin ejercicios queda vacío", () => 
   assert.equal(dayStatus(descanso.lun), "rest");
   assert.equal(descanso.lun.exercises.length, 4, "los ejercicios se conservan");
   assert.equal(dayStatus(setRest(descanso, "lun", false).lun), "exercises");
+});
+
+/* ---------- F08: completado por id ---------- */
+
+test("F08: eliminar un ejercicio no transfiere su marca a otro", () => {
+  const today = "2026-10-26";
+  let routine = stateFromSeed("demo", SEEDS.demo).routine;
+  let completed = toggleCompleted({}, today, "ex_d_lun1"); // Sentadilla, primer ejercicio
+  assert.deepEqual([...completedIdsFor(completed, today, routine.lun.exercises)], ["ex_d_lun1"]);
+
+  routine = deleteExercise(routine, "lun", "ex_d_lun1");
+  completed = removeCompletedId(completed, "ex_d_lun1");
+  // Con índices, "Prensa" (ahora en la posición 0) habría heredado la marca.
+  assert.equal(completedIdsFor(completed, today, routine.lun.exercises).size, 0);
+});
+
+test("F08: reordenar no mueve marcas y un id que ya no existe no cuenta", () => {
+  const today = "2026-10-26";
+  const exs = stateFromSeed("demo", SEEDS.demo).routine.lun.exercises;
+  const completed = { [today]: ["ex_d_lun3", "ex_borrado"] };
+  const done = completedIdsFor(completed, today, [...exs].reverse());
+  assert.deepEqual([...done], ["ex_d_lun3"]);
+});
+
+test("F08: toggleCompleted marca y desmarca solo en la fecha indicada", () => {
+  let c = toggleCompleted({}, "2026-10-31", "a");
+  c = toggleCompleted(c, "2026-10-31", "b");
+  c = toggleCompleted(c, "2026-10-31", "a");
+  assert.deepEqual(c, { "2026-10-31": ["b"] });
+  assert.equal(completedIdsFor(c, "2026-11-01", [{ id: "b" }]).size, 0, "al otro día arranca sin marcas");
+});
+
+/* ---------- F05: asistencia en cualquier día ---------- */
+
+test("F05: se puede registrar asistencia en un día de descanso", () => {
+  const s = stateFromSeed("U1", SEEDS.U1);
+  assert.equal(dayStatus(s.routine.sab), "rest");
+  const att = addAttendance(s.attendance, "2026-10-31");
+  assert.ok(hasAttendance(att, "2026-10-31"));
+  assert.deepEqual(addAttendance(att, "2026-10-31"), ["2026-10-31"], "sin duplicados");
 });

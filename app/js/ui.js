@@ -1,5 +1,7 @@
 // Render de las pantallas. Lee el estado y la vista; no modifica datos.
-import { DAY_KEYS, DAY_LABELS, dayStatus, formatDose } from "./logic.js";
+import {
+  DAY_KEYS, DAY_LABELS, completedIdsFor, dayStatus, formatDose, formatHeaderDate, hasAttendance,
+} from "./logic.js";
 
 const $ = id => document.getElementById(id);
 const EMPTY_DAY_TEXT = "Todavía no cargaste ejercicios para este día";
@@ -27,6 +29,63 @@ export function renderNav(screen) {
     <button type="button" class="navitem${n.id === screen ? " active" : ""}" data-action="nav" data-screen="${n.id}"${n.id === screen ? ' aria-current="page"' : ""}>
       <span class="ic" aria-hidden="true"></span>${n.label}
     </button>`).join("");
+}
+
+/* ---------- Hoy ---------- */
+
+function renderHoy(state, view, ctx) {
+  const day = state.routine[ctx.todayDay];
+  const status = dayStatus(day);
+  const attended = hasAttendance(state.attendance, ctx.todayKey);
+
+  $("hoyDate").textContent = formatHeaderDate(ctx.now);
+
+  let routineBox;
+  let allDone = false;
+  if (status === "rest") {
+    routineBox = `<div class="empty-state">Hoy es tu día de descanso. ¡A recuperar energías!</div>`;
+  } else if (status === "empty") {
+    routineBox = `
+      <div class="empty-state">${EMPTY_DAY_TEXT}
+        <button type="button" class="btn ghost" data-action="go-add-today">+ Agregar ejercicio</button>
+      </div>`;
+  } else {
+    const done = completedIdsFor(state.completed, ctx.todayKey, day.exercises);
+    const total = day.exercises.length;
+    const pct = Math.round((done.size / total) * 100);
+    allDone = done.size === total;
+    const rows = day.exercises.map(ex => {
+      const isDone = done.has(ex.id);
+      return `
+        <button type="button" class="ex-row${isDone ? " done" : ""}" data-action="toggle-ex" data-id="${esc(ex.id)}" aria-pressed="${isDone}">
+          <span class="ex-check" aria-hidden="true">${isDone ? "✓" : ""}</span>
+          <span class="ex-name">${esc(ex.name)}</span>
+          <span class="tag">${esc(formatDose(ex))}</span>
+        </button>`;
+    }).join("");
+    routineBox = `
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-label">${done.size} de ${total} ejercicios completados</div>
+      </div>
+      ${rows}`;
+  }
+
+  const hint = allDone && !attended
+    ? `<div class="hint">¡Completaste tu rutina de hoy! No te olvides de marcar tu asistencia.</div>` : "";
+
+  // F05: el botón de asistencia está siempre visible, haya o no rutina ese día.
+  const markBtn = attended
+    ? `<button type="button" class="btn primary done" data-action="mark-attendance" data-source="hoy">✓ Viniste hoy</button>`
+    : `<button type="button" class="btn primary" data-action="mark-attendance" data-source="hoy">Marcar que vine hoy</button>`;
+
+  $("hoyContent").innerHTML = `
+    <div class="box">
+      <div class="box-title">Tu rutina de hoy — ${DAY_LABELS[ctx.todayDay]}</div>
+      ${routineBox}
+    </div>
+    ${hint}
+    ${markBtn}`;
 }
 
 /* ---------- Rutina ---------- */
@@ -130,5 +189,6 @@ function renderRutina(state, view, ctx) {
 export function renderApp(state, view, ctx) {
   showScreen(view.screen);
   renderNav(view.screen);
+  renderHoy(state, view, ctx);
   renderRutina(state, view, ctx);
 }

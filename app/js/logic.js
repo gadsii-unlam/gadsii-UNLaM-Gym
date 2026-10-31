@@ -173,3 +173,35 @@ export function dayStatus(day) {
   if (day.rest) return "rest";
   return day.exercises.length === 0 ? "empty" : "exercises";
 }
+
+/* ---------- Completado (por id y por fecha) ---------- */
+
+// Marca o desmarca un ejercicio como completado en la fecha dada.
+export function toggleCompleted(completed, dateKey, id) {
+  const ids = completed[dateKey] || [];
+  const next = ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id];
+  return { ...completed, [dateKey]: next };
+}
+
+// Ids completados en la fecha que siguen existiendo en la lista de ejercicios.
+export function completedIdsFor(completed, dateKey, exercises) {
+  const done = new Set(completed[dateKey] || []);
+  return new Set(exercises.filter(e => done.has(e.id)).map(e => e.id));
+}
+
+/* ---------- Asistencia ---------- */
+
+export function hasAttendance(attendance, dateKey) {
+  return attendance.includes(dateKey);
+}
+
+export function addAttendance(attendance, dateKey) {
+  return normalizeAttendance([...attendance, dateKey]);
+}
+
+// Al eliminar un ejercicio se borra su marca en todas las fechas.
+export function removeCompletedId(completed, id) {
+  const next = {};
+  for (const [date, ids] of Object.entries(completed)) next[date] = ids.filter(x => x !== id);
+  return next;
+}
