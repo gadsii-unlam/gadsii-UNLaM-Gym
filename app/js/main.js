@@ -1,6 +1,7 @@
 // Punto de entrada: arma la vista, conecta acciones y renderiza.
 import { renderApp } from "./ui.js";
 import { getState, initStore, refresh, resolveUserId, update } from "./store.js";
+import { setContext, startEventLoop, track } from "./events.js";
 import {
   addExercise, allExerciseIds, dayKeyOf, deleteExercise, editExercise, findExercise,
   localDateKey, makeId, removeCompletedId, setRest, toggleAttendance, toggleCompleted, validateExercise,
@@ -22,6 +23,8 @@ const view = {
   confirmDeleteId: null,
 };
 
+setContext({ userId, screen: view.screen });
+
 function rerender() {
   renderApp(getState(), view, today());
 }
@@ -29,8 +32,11 @@ function rerender() {
 function go(screen) {
   if (view.screen === screen) return;
   view.screen = screen;
+  setContext({ screen });
   rerender();
   window.scrollTo(0, 0);
+  track("screen_view");
+  if (screen === "cuota") track("cuota_view");
 }
 
 function focusForm(field = "fName") {
@@ -45,20 +51,32 @@ function openAdd() {
   focusForm();
 }
 
+const exerciseData = (dayKey, ex) =>
+  ({ day: dayKey, id: ex.id, name: ex.name, series: ex.series, reps: ex.reps, unit: ex.unit });
+
 const actions = {
   nav: el => go(el.dataset.screen),
 
   "toggle-ex": el => {
-    const { todayKey } = today();
-    update(s => ({ ...s, completed: toggleCompleted(s.completed, todayKey, el.dataset.id) }));
+    const { todayKey, todayDay } = today();
+    const id = el.dataset.id;
+    const s = update(st => ({ ...st, completed: toggleCompleted(st.completed, todayKey, id) }));
     rerender();
+    const ex = findExercise(s.routine, todayDay, id);
+    track("exercise_toggle", { id, name: ex ? ex.name : null, done: (s.completed[todayKey] || []).includes(id) });
   },
 
   // F01: el botón de Hoy y la celda de hoy en el Calendario son un toggle.
-  "toggle-attendance": () => {
+  "toggle-attendance": el => {
     const { todayKey } = today();
-    update(s => ({ ...s, attendance: toggleAttendance(s.attendance, todayKey).attendance }));
+    let marked = false;
+    update(s => {
+      const r = toggleAttendance(s.attendance, todayKey);
+      marked = r.marked;
+      return { ...s, attendance: r.attendance };
+    });
     rerender();
+    track(marked ? "attendance_mark" : "attendance_unmark", { date: todayKey, source: el.dataset.source });
   },
 
   // Desde Hoy con el día vacío: abre Rutina en el día de hoy con el formulario.
@@ -108,15 +126,17 @@ const actions = {
 
   "toggle-rest": () => {
     const dayKey = view.rutinaDay;
-    update(s => ({ ...s, routine: setRest(s.routine, dayKey, !s.routine[dayKey].rest) }));
+    const s = update(st => ({ ...st, routine: setRest(st.routine, dayKey, !st.routine[dayKey].rest) }));
     view.form = null;
     view.confirmDeleteId = null;
     rerender();
+    track("day_rest_toggle", { day: dayKey, rest: s.routine[dayKey].rest });
   },
 
   "confirm-delete": el => {
     const id = el.dataset.id;
     const dayKey = view.rutinaDay;
+    const ex = findExercise(getState().routine, dayKey, id);
     update(s => ({
       ...s,
       routine: deleteExercise(s.routine, dayKey, id),
@@ -124,6 +144,7 @@ const actions = {
     }));
     view.confirmDeleteId = null;
     rerender();
+    if (ex) track("exercise_delete", exerciseData(dayKey, ex));
   },
 };
 
@@ -145,17 +166,19 @@ function submitExerciseForm(form) {
   }
 
   const dayKey = view.rutinaDay;
-  if (view.form.mode === "edit") {
-    const id = view.form.id;
+  const mode = view.form.mode;
+  let id = view.form.id;
+  if (mode === "edit") {
     update(s => ({ ...s, routine: editExercise(s.routine, dayKey, id, result.value) }));
   } else {
     update(s => {
-      const id = makeId(allExerciseIds(s.routine));
+      id = makeId(allExerciseIds(s.routine));
       return { ...s, routine: addExercise(s.routine, dayKey, result.value, id) };
     });
   }
   view.form = null;
   rerender();
+  track(mode === "edit" ? "exercise_edit" : "exercise_add", exerciseData(dayKey, { id, ...result.value }));
 }
 
 document.addEventListener("click", e => {
@@ -187,3 +210,5 @@ document.addEventListener("visibilitychange", () => {
 });
 
 rerender();
+startEventLoop();
+track("screen_view");
