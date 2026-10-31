@@ -5,6 +5,7 @@ import {
   localDateKey, parseDateKey, addDays, dayKeyOf, formatHeaderDate, formatMonthTitle, isoWithOffset,
   normalizeAttendance, pruneCompleted, stateFromSeed, isValidState, DAY_KEYS,
   validateExercise, formatDose, makeId, addExercise, editExercise, deleteExercise,
+  setRest, dayStatus,
 } from "../app/js/logic.js";
 import { SEEDS } from "../app/js/seeds.js";
 
@@ -124,4 +125,21 @@ test("editar conserva el id y eliminar saca solo ese ejercicio", () => {
   assert.deepEqual(edited.lun.exercises[1], { id: "ex_d_lun2", name: "Prensa 45°", series: 4, reps: 12, unit: "reps" });
   const deleted = deleteExercise(edited, "lun", "ex_d_lun1");
   assert.deepEqual(deleted.lun.exercises.map(e => e.id), ["ex_d_lun2", "ex_d_lun3", "ex_d_lun4"]);
+});
+
+/* ---------- F04: descanso como flag del día ---------- */
+
+test("F04: el descanso es un flag y un día sin ejercicios queda vacío", () => {
+  const routine = stateFromSeed("demo", SEEDS.demo).routine;
+  assert.equal(dayStatus(routine.mie), "rest");
+  assert.equal(dayStatus(routine.lun), "exercises");
+  const sinLunes = ["ex_d_lun1", "ex_d_lun2", "ex_d_lun3", "ex_d_lun4"]
+    .reduce((r, id) => deleteExercise(r, "lun", id), routine);
+  assert.equal(dayStatus(sinLunes.lun), "empty");
+  assert.equal(sinLunes.lun.rest, false, "vaciar un día no lo convierte en descanso");
+
+  const descanso = setRest(routine, "lun", true);
+  assert.equal(dayStatus(descanso.lun), "rest");
+  assert.equal(descanso.lun.exercises.length, 4, "los ejercicios se conservan");
+  assert.equal(dayStatus(setRest(descanso, "lun", false).lun), "exercises");
 });

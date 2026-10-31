@@ -3,7 +3,7 @@ import { renderApp } from "./ui.js";
 import { getState, initStore, resolveUserId, update } from "./store.js";
 import {
   addExercise, allExerciseIds, dayKeyOf, deleteExercise, editExercise, findExercise,
-  localDateKey, makeId, validateExercise,
+  localDateKey, makeId, setRest, validateExercise,
 } from "./logic.js";
 
 const userId = resolveUserId(location.search);
@@ -82,6 +82,14 @@ const actions = {
   },
 
   "cancel-delete": () => {
+    view.confirmDeleteId = null;
+    rerender();
+  },
+
+  "toggle-rest": () => {
+    const dayKey = view.rutinaDay;
+    update(s => ({ ...s, routine: setRest(s.routine, dayKey, !s.routine[dayKey].rest) }));
+    view.form = null;
     view.confirmDeleteId = null;
     rerender();
   },

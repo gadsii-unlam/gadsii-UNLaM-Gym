@@ -161,3 +161,15 @@ export function deleteExercise(routine, dayKey, id) {
 export function findExercise(routine, dayKey, id) {
   return routine[dayKey].exercises.find(e => e.id === id) || null;
 }
+
+// Marca o desmarca el día como descanso. Los ejercicios del día se conservan
+// (ocultos) para no perderlos si se vuelve a desmarcar.
+export function setRest(routine, dayKey, rest) {
+  return withDay(routine, dayKey, d => ({ ...d, rest: !!rest }));
+}
+
+// "rest" | "empty" | "exercises"
+export function dayStatus(day) {
+  if (day.rest) return "rest";
+  return day.exercises.length === 0 ? "empty" : "exercises";
+}

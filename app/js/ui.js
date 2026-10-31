@@ -1,7 +1,8 @@
 // Render de las pantallas. Lee el estado y la vista; no modifica datos.
-import { DAY_KEYS, DAY_LABELS, formatDose } from "./logic.js";
+import { DAY_KEYS, DAY_LABELS, dayStatus, formatDose } from "./logic.js";
 
 const $ = id => document.getElementById(id);
+const EMPTY_DAY_TEXT = "Todavía no cargaste ejercicios para este día";
 
 const NAV = [
   { id: "hoy", label: "Hoy" },
@@ -101,12 +102,11 @@ function renderRutina(state, view, ctx) {
     <button type="button" class="tabday${k === dayKey ? " sel" : ""}${k === ctx.todayDay ? " today" : ""}"
       data-action="select-day" data-day="${k}" aria-pressed="${k === dayKey}">${DAY_LABELS[k]}</button>`).join("");
 
+  const status = dayStatus(day);
   let body;
-  if (day.rest) {
-    body = `<div class="empty-state">Día de descanso.</div>`;
-  } else {
-    body = day.exercises.map(ex => rutinaRowHtml(ex, view)).join("");
-  }
+  if (status === "rest") body = `<div class="empty-state">Día de descanso.</div>`;
+  else if (status === "empty") body = `<div class="empty-state">${EMPTY_DAY_TEXT}</div>`;
+  else body = day.exercises.map(ex => rutinaRowHtml(ex, view)).join("");
 
   const form = view.form ? exerciseFormHtml(view.form) : "";
   const addBtn = !day.rest && !view.form
@@ -115,7 +115,12 @@ function renderRutina(state, view, ctx) {
   $("rutinaContent").innerHTML = `
     <div class="tabs">${tabs}</div>
     <div class="box">
-      <div class="box-head"><div class="box-title">${DAY_LABELS[dayKey]}</div></div>
+      <div class="box-head">
+        <div class="box-title">${DAY_LABELS[dayKey]}</div>
+        <button type="button" class="switch" data-action="toggle-rest" aria-pressed="${day.rest}">
+          <span class="box-ind" aria-hidden="true">${day.rest ? "✓" : ""}</span>Día de descanso
+        </button>
+      </div>
       ${body}
     </div>
     ${addBtn}
