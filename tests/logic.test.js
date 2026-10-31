@@ -6,6 +6,7 @@ import {
   normalizeAttendance, pruneCompleted, stateFromSeed, isValidState, DAY_KEYS,
   validateExercise, formatDose, makeId, addExercise, editExercise, deleteExercise,
   setRest, dayStatus, toggleCompleted, completedIdsFor, removeCompletedId, addAttendance, hasAttendance,
+  calendarOffset, calendarMonth, countInMonthUpTo,
 } from "../app/js/logic.js";
 import { SEEDS } from "../app/js/seeds.js";
 
@@ -182,4 +183,35 @@ test("F05: se puede registrar asistencia en un día de descanso", () => {
   const att = addAttendance(s.attendance, "2026-10-31");
   assert.ok(hasAttendance(att, "2026-10-31"));
   assert.deepEqual(addAttendance(att, "2026-10-31"), ["2026-10-31"], "sin duplicados");
+});
+
+/* ---------- F03: offset del calendario ---------- */
+
+test("F03: octubre 2026 arranca jueves → 3 celdas vacías", () => {
+  assert.equal(calendarOffset(2026, 9), 3);
+});
+
+test("F03: mes que arranca en lunes → 0 celdas vacías (junio 2026)", () => {
+  assert.equal(new Date(2026, 5, 1).getDay(), 1);
+  assert.equal(calendarOffset(2026, 5), 0);
+});
+
+test("F03: mes que arranca en domingo → 6 celdas vacías (noviembre 2026)", () => {
+  assert.equal(new Date(2026, 10, 1).getDay(), 0);
+  assert.equal(calendarOffset(2026, 10), 6);
+});
+
+test("F03: el offset no depende del día de hoy", () => {
+  // En el wireframe salía de now.getDay(): el 31/10/2026 (sábado) daba 5.
+  for (const day of [1, 15, 31]) {
+    assert.equal(calendarMonth([], new Date(2026, 9, day)).offset, 3);
+  }
+});
+
+test("calendarMonth marca días entrenados y hoy", () => {
+  const cal = calendarMonth(["2026-09-30", "2026-10-02", "2026-10-31"], new Date(2026, 9, 31, 22, 0));
+  assert.equal(cal.days.length, 31);
+  assert.deepEqual(cal.days.filter(d => d.marked).map(d => d.day), [2, 31]);
+  assert.deepEqual(cal.days.filter(d => d.isToday).map(d => d.day), [31]);
+  assert.equal(countInMonthUpTo(["2026-10-02", "2026-10-20", "2026-09-02"], 2026, 9, 15), 1);
 });

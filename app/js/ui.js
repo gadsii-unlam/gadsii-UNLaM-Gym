@@ -1,6 +1,7 @@
 // Render de las pantallas. Lee el estado y la vista; no modifica datos.
 import {
-  DAY_KEYS, DAY_LABELS, completedIdsFor, dayStatus, formatDose, formatHeaderDate, hasAttendance,
+  DAY_KEYS, DAY_LABELS, calendarMonth, completedIdsFor, dayStatus, formatDose, formatHeaderDate,
+  formatMonthTitle, hasAttendance,
 } from "./logic.js";
 
 const $ = id => document.getElementById(id);
@@ -186,9 +187,39 @@ function renderRutina(state, view, ctx) {
     ${form}`;
 }
 
+/* ---------- Calendario ---------- */
+
+function renderCalendario(state, view, ctx) {
+  const cal = calendarMonth(state.attendance, ctx.now);
+  $("calMonth").textContent = formatMonthTitle(cal.year, cal.month);
+
+  const heads = ["L", "M", "M", "J", "V", "S", "D"].map(d => `<div class="cal-head" aria-hidden="true">${d}</div>`).join("");
+  const blanks = `<div class="cal-day blank"></div>`.repeat(cal.offset);
+  const days = cal.days.map(d => {
+    const cls = `cal-day${d.marked ? " marked" : ""}${d.isToday ? " today" : ""}`;
+    const label = `${d.day}${d.marked ? ", entrenado" : ""}`;
+    return d.isToday
+      ? `<button type="button" class="${cls}" data-action="mark-attendance" data-source="calendario" aria-label="Hoy ${label}" aria-pressed="${d.marked}">${d.day}</button>`
+      : `<div class="${cls}" aria-label="${label}">${d.day}</div>`;
+  }).join("");
+
+  const count = cal.days.filter(d => d.marked).length;
+
+  $("calContent").innerHTML = `
+    <div class="box">
+      <div class="cal-grid">${heads}${blanks}${days}</div>
+      <div class="legend"><span>● día entrenado</span><span>▢ hoy</span></div>
+    </div>
+    <div class="box">
+      <div class="box-title">Resumen</div>
+      <div class="row"><span>Días entrenados este mes</span><span class="tag">${count}</span></div>
+    </div>`;
+}
+
 export function renderApp(state, view, ctx) {
   showScreen(view.screen);
   renderNav(view.screen);
   renderHoy(state, view, ctx);
   renderRutina(state, view, ctx);
+  renderCalendario(state, view, ctx);
 }

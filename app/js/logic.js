@@ -205,3 +205,31 @@ export function removeCompletedId(completed, id) {
   for (const [date, ids] of Object.entries(completed)) next[date] = ids.filter(x => x !== id);
   return next;
 }
+
+/* ---------- Calendario ---------- */
+
+// Celdas vacías antes del día 1, con semana que arranca en lunes.
+// Sale del día de la semana del 1° del mes, no del de hoy.
+export function calendarOffset(year, month) {
+  return (new Date(year, month, 1).getDay() + 6) % 7;
+}
+
+// Días con asistencia en el mes (month 0..11) hasta el día lastDay inclusive.
+export function countInMonthUpTo(attendance, year, month, lastDay) {
+  const prefix = `${year}-${pad(month + 1)}-`;
+  return attendance.filter(d => d.startsWith(prefix) && Number(d.slice(8)) <= lastDay).length;
+}
+
+// Datos del mes actual para dibujar el calendario.
+export function calendarMonth(attendance, today) {
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const todayKey = localDateKey(today);
+  const marked = new Set(attendance);
+  const days = [];
+  for (let d = 1; d <= daysInMonth(year, month); d++) {
+    const key = localDateKey(new Date(year, month, d));
+    days.push({ day: d, key, marked: marked.has(key), isToday: key === todayKey });
+  }
+  return { year, month, offset: calendarOffset(year, month), days };
+}
