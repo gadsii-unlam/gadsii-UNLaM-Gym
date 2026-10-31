@@ -84,3 +84,34 @@ Cada decisión también figura en el cuerpo del commit correspondiente con el pr
 - 35 tests unitarios con `node --test`, todos pasan.
 - Recorrido automatizado en Chrome headless a 375 px y 360 px, con la fecha simulada y un endpoint de eventos local de prueba. Cubre el flujo principal, F01 a F08, la persistencia, la separación entre usuarios, el modo sin conexión, la pantalla admin y el tamaño de las áreas táctiles. Pasaron las 110 verificaciones.
 - No se probó en celulares reales ni con el Apps Script publicado.
+
+### Ajustes después del deploy (31/10/2026)
+
+**Pedido del equipo**, en la misma sesión de Claude Code, rama `mejoras-feedback`:
+
+1. Agregar íconos a las secciones de la barra inferior, que mostraba cuadrados vacíos.
+2. Poder moverse entre meses en el Calendario. Este cambio de scope lo decidió el equipo: el prompt original dejaba la navegación entre meses fuera.
+3. La pantalla `?admin=1` mostraba información que no coincidía con lo que veía U1. Se pidió corregirla y explicar su alcance.
+
+**Qué decidió la herramienta:**
+
+- **Íconos:**
+  - SVG de trazo escritos en el código, sin librería: pesa (Hoy), planilla (Rutina), calendario (Calendario) y tarjeta (Cuota).
+  - Lápiz y tacho para editar y eliminar.
+  - Línea superior para marcar la sección activa.
+- **Calendario:**
+  - Flechas para ir al mes anterior y al siguiente, hasta 12 meses atrás y sin meses futuros.
+  - Botón "Volver al mes actual".
+  - La constancia de un mes pasado se calcula sobre todos los días del mes.
+  - La asistencia solo se marca en el día de hoy.
+  - Al volver a la pantalla se abre en el mes actual.
+  - Nuevo evento `calendar_month_view`.
+- **Admin:**
+  - Diagnóstico: la pantalla muestra lo guardado en el navegador donde se abre, porque no hay servidor, no lo que hace U1 en su celular. Además, `?u=` cambiaba el usuario guardado y mirar un usuario sin datos le creaba datos.
+  - Se rehízo en un módulo propio, `admin.js`. `main.js` quedó como punto de entrada y la app pasó a `app.js`.
+  - Ahora explica su alcance, distingue el usuario del navegador del usuario que se está mirando, y mirar no cambia nada.
+  - Lista los usuarios con datos y muestra el detalle de cada uno.
+  - Avisa si `EVENTS_ENDPOINT` está vacío y cuenta los eventos enviados (`unlamgym:v1:eventStats`).
+  - Exporta todos los usuarios del navegador.
+
+**Verificación:** 39 tests unitarios y un recorrido en Chrome headless con 134 verificaciones, que pasó dos veces seguidas. No se probó en celulares reales.
