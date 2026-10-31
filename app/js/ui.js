@@ -1,7 +1,8 @@
 // Render de las pantallas. Lee el estado y la vista; no modifica datos.
 import {
   DAY_KEYS, DAY_LABELS, calendarMonth, completedIdsFor, dayStatus, formatDose, formatHeaderDate,
-  formatMonthTitle, hasAttendance, comparisonMessage, constancy, streak, streakText,
+  formatMonthTitle, hasAttendance, comparisonMessage, isMonthVisible, monthConstancy, monthName, monthsAgo,
+  shiftMonth, streak, streakText,
 } from "./logic.js";
 
 const $ = id => document.getElementById(id);
@@ -221,8 +222,11 @@ function renderRutina(state, view, ctx) {
 /* ---------- Calendario ---------- */
 
 function renderCalendario(state, view, ctx) {
-  const cal = calendarMonth(state.attendance, ctx.now);
-  $("calMonth").textContent = formatMonthTitle(cal.year, cal.month);
+  const shown = view.calMonth || { year: ctx.now.getFullYear(), month: ctx.now.getMonth() };
+  const cal = calendarMonth(state.attendance, ctx.now, shown.year, shown.month);
+  const isCurrent = monthsAgo(ctx.now, cal.year, cal.month) === 0;
+  const prev = shiftMonth(cal.year, cal.month, -1);
+  const canPrev = isMonthVisible(ctx.now, prev.year, prev.month);
 
   const heads = ["L", "M", "M", "J", "V", "S", "D"].map(d => `<div class="cal-head" aria-hidden="true">${d}</div>`).join("");
   const blanks = `<div class="cal-day blank"></div>`.repeat(cal.offset);
@@ -235,16 +239,25 @@ function renderCalendario(state, view, ctx) {
   }).join("");
 
   const count = cal.days.filter(d => d.marked).length;
+  const title = formatMonthTitle(cal.year, cal.month);
 
   $("calContent").innerHTML = `
     <div class="box">
+      <div class="cal-nav">
+        <button type="button" class="icon-btn" data-action="cal-month" data-delta="-1"
+          aria-label="Mes anterior"${canPrev ? "" : " disabled"}>${ICONS.prev}</button>
+        <h2 class="cal-title" aria-live="polite">${title}</h2>
+        <button type="button" class="icon-btn" data-action="cal-month" data-delta="1"
+          aria-label="Mes siguiente"${isCurrent ? " disabled" : ""}>${ICONS.next}</button>
+      </div>
       <div class="cal-grid">${heads}${blanks}${days}</div>
-      <div class="legend"><span>● día entrenado</span><span>▢ hoy</span></div>
+      <div class="legend"><span>● día entrenado</span>${isCurrent ? "<span>▢ hoy</span>" : ""}</div>
     </div>
+    ${isCurrent ? "" : `<button type="button" class="btn ghost" data-action="cal-today">Volver al mes actual</button>`}
     <div class="box">
       <div class="box-title">Resumen</div>
-      <div class="row"><span>Días entrenados este mes</span><span class="tag">${count}</span></div>
-      <div class="row"><span>Constancia</span><span class="tag">${constancy(state.attendance, ctx.now)}%</span></div>
+      <div class="row"><span>${isCurrent ? "Días entrenados este mes" : `Días entrenados en ${monthName(cal.month)}`}</span><span class="tag">${count}</span></div>
+      <div class="row"><span>Constancia</span><span class="tag">${monthConstancy(state.attendance, ctx.now, cal.year, cal.month)}%</span></div>
     </div>`;
 }
 

@@ -229,10 +229,8 @@ export function countInMonthUpTo(attendance, year, month, lastDay) {
   return attendance.filter(d => d.startsWith(prefix) && Number(d.slice(8)) <= lastDay).length;
 }
 
-// Datos del mes actual para dibujar el calendario.
-export function calendarMonth(attendance, today) {
-  const year = today.getFullYear();
-  const month = today.getMonth();
+// Datos de un mes para dibujar el calendario (por defecto, el mes de hoy).
+export function calendarMonth(attendance, today, year = today.getFullYear(), month = today.getMonth()) {
   const todayKey = localDateKey(today);
   const marked = new Set(attendance);
   const days = [];
@@ -292,4 +290,38 @@ export function comparisonMessage(attendance, today) {
   const { current, previous } = monthComparison(attendance, today);
   if (previous === 0 || current <= previous) return null;
   return `Vas mejor que el mes pasado: ${daysText(current)} contra ${daysText(previous)} a esta altura.`;
+}
+
+/* ---------- Navegación del calendario ---------- */
+
+// Cuántos meses hacia atrás se pueden ver desde el mes actual.
+export const CAL_MONTHS_BACK = 12;
+
+export function shiftMonth(year, month, delta) {
+  const d = new Date(year, month + delta, 1);
+  return { year: d.getFullYear(), month: d.getMonth() };
+}
+
+// Meses entre (year, month) y el mes de hoy: 0 = mes actual, 1 = el anterior...
+export function monthsAgo(today, year, month) {
+  return (today.getFullYear() - year) * 12 + (today.getMonth() - month);
+}
+
+// Se puede ver desde el mes actual hasta CAL_MONTHS_BACK meses atrás; nunca meses futuros.
+export function isMonthVisible(today, year, month) {
+  const ago = monthsAgo(today, year, month);
+  return ago >= 0 && ago <= CAL_MONTHS_BACK;
+}
+
+// Constancia de un mes: en el mes actual, sobre los días transcurridos;
+// en un mes pasado, sobre todos los días de ese mes.
+export function monthConstancy(attendance, today, year, month) {
+  if (monthsAgo(today, year, month) === 0) return constancy(attendance, today);
+  const total = daysInMonth(year, month);
+  return Math.round((countInMonthUpTo(attendance, year, month, total) / total) * 100);
+}
+
+// "septiembre"
+export function monthName(month) {
+  return MONTHS_FULL[month].toLowerCase();
 }

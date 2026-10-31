@@ -5,7 +5,7 @@ import { flush, queueSize, readQueue, setContext, startEventLoop, track } from "
 import { EVENTS_ENDPOINT } from "./config.js";
 import {
   addExercise, allExerciseIds, dayKeyOf, deleteExercise, editExercise, findExercise,
-  isoWithOffset, localDateKey, makeId, removeCompletedId, setRest, toggleAttendance, toggleCompleted, validateExercise,
+  isMonthVisible, isoWithOffset, localDateKey, monthsAgo, shiftMonth, makeId, removeCompletedId, setRest, toggleAttendance, toggleCompleted, validateExercise,
 } from "./logic.js";
 
 const userId = resolveUserId(location.search);
@@ -22,6 +22,7 @@ const view = {
   rutinaDay: today().todayDay,
   form: null,            // { mode: "add" | "edit", id, values, errors }
   confirmDeleteId: null,
+  calMonth: null,        // { year, month } que se ve en Calendario; null = mes actual
 };
 
 setContext({ userId, screen: view.screen });
@@ -33,6 +34,7 @@ function rerender() {
 function go(screen) {
   if (view.screen === screen) return;
   view.screen = screen;
+  view.calMonth = null; // el calendario siempre abre en el mes actual
   setContext({ screen });
   rerender();
   window.scrollTo(0, 0);
@@ -50,6 +52,13 @@ function openAdd() {
   view.confirmDeleteId = null;
   rerender();
   focusForm();
+}
+
+function showCalMonth(to, now) {
+  const ago = monthsAgo(now, to.year, to.month);
+  view.calMonth = ago === 0 ? null : to;
+  rerender();
+  track("calendar_month_view", { month: `${to.year}-${String(to.month + 1).padStart(2, "0")}`, monthsAgo: ago });
 }
 
 const exerciseData = (dayKey, ex) =>
@@ -78,6 +87,19 @@ const actions = {
     });
     rerender();
     track(marked ? "attendance_mark" : "attendance_unmark", { date: todayKey, source: el.dataset.source });
+  },
+
+  "cal-month": el => {
+    const { now } = today();
+    const from = view.calMonth || { year: now.getFullYear(), month: now.getMonth() };
+    const to = shiftMonth(from.year, from.month, Number(el.dataset.delta));
+    if (!isMonthVisible(now, to.year, to.month)) return;
+    showCalMonth(to, now);
+  },
+
+  "cal-today": () => {
+    const { now } = today();
+    showCalMonth({ year: now.getFullYear(), month: now.getMonth() }, now);
   },
 
   // Desde Hoy con el día vacío: abre Rutina en el día de hoy con el formulario.

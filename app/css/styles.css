@@ -184,6 +184,9 @@ a.btn{text-decoration:none;color:inherit;}
 .cal-day.marked{background:var(--fill);}
 .cal-day.marked::after{content:"●";position:absolute;bottom:2px;font-size:9px;}
 .cal-day.today{outline:2px dashed var(--ink);outline-offset:-2px;cursor:pointer;font-weight:bold;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+.cal-title{font-size:15px;margin:0;text-align:center;flex:1;}
+.icon-btn:disabled{opacity:.3;cursor:default;}
 .legend{font-size:11px;color:#555;margin-top:10px;display:flex;gap:14px;flex-wrap:wrap;}
 
 /* Barra inferior */
