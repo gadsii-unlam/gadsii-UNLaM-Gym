@@ -1,6 +1,6 @@
 # Brief de Producto
 
-V3: Tercera entrega. Se incorporan el scope del MVP, la definición de qué se construye y qué se simula, el flujo principal de interacción y los atributos de usabilidad priorizados. Esta actualización refleja la transición desde la validación del problema hacia el diseño de la solución, justificando las decisiones de producto en base a los aprendizajes previos
+V4: Cuarta entrega. Se incorporan los resultados de la prueba del MVP con tres usuarios reales (U1, U2, U3), el estado de la hipótesis de valor del punto 11 a la luz de esa evidencia, y la decisión de perseverar con su fundamento. A diferencia de las validaciones anteriores (encuestas, TP2), esta vez la evidencia proviene de observación directa de uso del producto construido, no de preguntas sobre un problema hipotético.
 
 2. Elección del segmento y comprobación del acceso
 
@@ -174,3 +174,21 @@ Se estructura el recorrido lógico y central que hará el usuario en la aplicaci
 
 15. Atributos de usabilidad
 Se priorizan la facilidad de aprendizaje, la eficiencia y la satisfacción para alinear el diseño con el contexto de uso real (el gimnasio), asegurando que la herramienta requiera pocos pasos y no interrumpa el entrenamiento.
+
+16. Resultado de la prueba con usuarios reales (TP5)
+
+Se probó el MVP con tres usuarios reales del segmento (U1, U2 y U3, los mismos identificados en el punto 2.2), en sesiones individuales moderadas por el equipo entre el 1 y el 2 de noviembre de 2026, recorriendo las tres tareas del flujo principal: consultar la rutina y registrar asistencia, crear una rutina propia, y consultar el historial de asistencia.
+
+Resultado frente al criterio de éxito definido para esta prueba: los tres usuarios (100%) completaron las tres tareas sin ayuda del equipo, por encima del umbral del 80% definido como confirmación. Los tiempos totales por sesión fueron de 15, 17 y 18 minutos.
+
+Aclaración sobre el alcance de esta prueba frente al punto 11: la hipótesis de valor original planteaba confirmar también la utilidad de las notificaciones de rutina y cuota, y medir el uso durante la primera semana real. Ninguna de las dos cosas pudo probarse en esta instancia: las notificaciones no forman parte del scope del MVP (punto 12) y la prueba fue una sesión única y supervisada, no una semana de uso autónomo. Lo que sí valida esta prueba es el núcleo de la hipótesis — que centralizar la consulta de rutina y el registro de asistencia reduce la dependencia de la memoria — no la totalidad del enunciado del punto 11.
+
+Fricción encontrada: ninguno de los problemas de usabilidad detectados y corregidos en el TP4 volvió a aparecer. Sí aparecieron problemas nuevos, no anticipados: el botón de agregar ejercicio se oculta en un día marcado como descanso, lo que llevó a un usuario a desactivar el descanso en lugar de cambiar de día; los campos de series y repeticiones no tienen ninguna referencia de valores típicos, lo que generó dudas en los tres usuarios; y un usuario pidió, en tres momentos distintos de su sesión, poder ver qué ejercicios realizó cada día, una funcionalidad que hoy no existe.
+
+Evidencia de valor real, más allá de la facilidad de uso: los tres usuarios, sin que se les preguntara directamente, dijeron que preferían armar su propia rutina antes que recibir una ya cargada, y uno de ellos describió espontáneamente el calendario como la herramienta para “llevar un control de los días que vine” — coincidiendo con la necesidad de autogestión que ya había aparecido como hallazgo no previsto en el punto 10 (“el 80% de los que tienen rutina definida la arma por su cuenta”).
+
+17. Pivotar o perseverar
+
+Decisión: perseverar. La evidencia de esta prueba no contradice la hipótesis del punto 11 ni el supuesto crítico (supuesto 6, confirmado en el punto 10): los tres usuarios completaron el flujo principal sin ayuda, superando el criterio de éxito, y expresaron con sus propias palabras que el producto resuelve la necesidad de autogestión y seguimiento que motivó el proyecto. La fricción detectada es de ajuste de interfaz, no de dirección: ningún usuario cuestionó el problema que el producto intenta resolver.
+
+Esto fundamenta la decisión de seguir construyendo sobre el mismo scope (punto 12), no de pivotar. Los próximos pasos recortados a partir de esta evidencia son: corregir la interacción entre el interruptor de descanso y el botón de agregar ejercicio, sumar una referencia de valores típicos en los campos de series y repeticiones, y evaluar agregar el detalle de qué ejercicios se realizaron cada día dentro del historial de asistencia, por ser el pedido más repetido de las tres sesiones.
