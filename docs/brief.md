@@ -1,6 +1,6 @@
 # Brief de Producto
 
-V4: Cuarta entrega. Se incorporan los resultados de la prueba del MVP con tres usuarios reales (U1, U2, U3), el estado de la hipótesis de valor del punto 11 a la luz de esa evidencia, y la decisión de perseverar con su fundamento. A diferencia de las validaciones anteriores (encuestas, TP2), esta vez la evidencia proviene de observación directa de uso del producto construido, no de preguntas sobre un problema hipotético.
+V5: Con el MVP ya construido y probado, esta versión no suma evidencia de usuarios sino arquitectura. Se agrega la descripción de la arquitectura real del MVP tal como está construida (una aplicación web que corre entera en el celular, con persistencia local por usuario), la arquitectura de la gran visión (cliente-servidor, con un backend monolítico modular y una base de datos para la persistencia de datos) marcando qué parte cubre el MVP, el componente más riesgoso al crecer (la persistencia y la identidad del usuario) y las restricciones técnicas del contexto, el gimnasio es independiente de los sistemas institucionales de la universidad por lo que no hay que convivir con eso, el producto se alojaría en servidores externos y la identidad, el alojamiento y el mantenimiento quedarían a cargo del equipo.
 
 2. Elección del segmento y comprobación del acceso
 
@@ -192,3 +192,32 @@ Evidencia de valor real, más allá de la facilidad de uso: los tres usuarios, s
 Decisión: perseverar. La evidencia de esta prueba no contradice la hipótesis del punto 11 ni el supuesto crítico (supuesto 6, confirmado en el punto 10): los tres usuarios completaron el flujo principal sin ayuda, superando el criterio de éxito, y expresaron con sus propias palabras que el producto resuelve la necesidad de autogestión y seguimiento que motivó el proyecto. La fricción detectada es de ajuste de interfaz, no de dirección: ningún usuario cuestionó el problema que el producto intenta resolver.
 
 Esto fundamenta la decisión de seguir construyendo sobre el mismo scope (punto 12), no de pivotar. Los próximos pasos recortados a partir de esta evidencia son: corregir la interacción entre el interruptor de descanso y el botón de agregar ejercicio, sumar una referencia de valores típicos en los campos de series y repeticiones, y evaluar agregar el detalle de qué ejercicios se realizaron cada día dentro del historial de asistencia, por ser el pedido más repetido de las tres sesiones.
+
+18. Arquitectura del sistema
+    
+Esta sección incorpora la arquitectura del producto: primero la que el MVP ya tiene, después la de la gran visión del TP1, y por último dónde está el riesgo. Las decisiones técnicas del MVP se tomaron en parte por el equipo y en parte por la herramienta con la que se construyó.
+
+19. Arquitectura real del MVP
+    
+El MVP es una aplicación web del lado del cliente, no tiene backend. Está escrita en HTML, CSS y JavaScript con módulos ES, sin frameworks ni dependencias en runtime, y se publica como sitio estático en GitHub Pages mediante un workflow de GitHub Actions. Después de cargar los archivos, la lógica, el estado y los datos viven en el navegador del celular.
+Qué cubre el MVP. 
+El alcance exacto es: el alumno arma y edita su propia rutina por día (no hay rutinas asignadas por un entrenador), marca su asistencia y consulta su historial de fechas, su racha y su constancia. Estos módulos corren en el cliente, no en un servidor. El MVP no guarda el historial de ejercicios por día ni el progreso más allá de la constancia, y tampoco los pesos. La pantalla Cuota es una simulación. El resto de la visión (autenticación y roles, notificaciones, base de datos, Mercado Pago, y los paneles del entrenador y del administrador) no está construido.
+
+20. Arquitectura de la gran visión
+    
+La visión del TP1 es una arquitectura cliente-servidor, con un backend monolítico modular
+Clientes web: la app del alumno, el panel del entrenador y el panel del administrador, cada uno con las funciones correspondientes de su rol.
+Backend: usuarios, autenticación y roles, rutinas, asistencia, progreso e historial de ejercicios, catálogo de ejercicios, suscripciones y pagos, notificaciones, y tareas programadas que detectan vencimientos y disparan los avisos.
+Base de datos: fuente de persistencia de los datos.
+Servicios externos: Mercado Pago (creación del pago y aviso del estado por webhook) y un servicio de notificaciones (Web Push y email).
+
+Salto arquitectónico más grande. El MVP cubre una sola porción de la visión, y toda su lógica corre en el celular de cada usuario, sin servidor, sin cuentas y sin otros roles. El salto más grande es pasar de ese estado local, donde cada celular es dueño de sus datos y el "usuario" es un parámetro de la URL, a un backend con una base de datos, con usuarios autenticados y roles. Reemplazar el aviso de la cuota por la integración real con Mercado Pago, porque esa integración, las notificaciones y los paneles de entrenador y administrador dependen de que ese backend exista. Pasar de unos pocos usuarios a cientos, son unos 2.000 afiliados aproximadamente, así que alcanza con un monolito modular y no hace falta pensar en microservicios.
+
+21. Restricciones técnicas del contexto
+    
+Independencia institucional: El gimnasio es independiente de lo académico, no hay sistemas de la universidad con los que convivir ni un login institucional al que conectarse. El producto se alojaría en servidores externos a los de la universidad.
+Identidad, alojamiento y mantenimiento a cargo del equipo: Sin un sistema institucional, la autenticación, los roles y la gestión de contraseñas se construyen dentro del producto.
+Datos personales y de pagos. La visión guarda datos personales y de pagos de los afiliados, por lo que alcanza la Ley 25.326 de protección de datos personales; su aplicación concreta se define al diseñar el backend.
+Contexto de uso: El uso principal es dentro del gimnasio, entre series, con el celular, y requiere pocos pasos. El uso fuera del gimnasio es para la cuota y los recordatorios. El TP2 no relevó la conectividad dentro del gimnasio, y el MVP no carga sin conexión.
+Escala: Unos 2.000 afiliados: no hay requisitos de escala que justifiquen más que un monolito modular.
+
