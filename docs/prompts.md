@@ -6,6 +6,7 @@
 | 05/09| Claude  | Actúa como un diseñador UX/UI experto. Para cada una de las tres alternativas, documentá el diseño con un esquema en texto (tipo wireframe de baja fidelidad en viñetas) de sus pantallas principales. | TP3 |
 | 19/09| Claude  | En base al siguiente archivo brief.md y la tabla de evaluación que te adjunto, realiza dicha evaluación sobre el wireframe en base a lo que consideres. | TP4 |
 | 31/10| Claude Code (Claude Opus 5.5) | Construir el MVP de UNLaM-Gym a partir del wireframe, con correcciones F01 a F08, log de eventos y herramientas del equipo (ver sección TP5). | TP5 |
+| 07/11|  Claude | Necesito que me produzcas el diagrama en mermaid de la arquitectura del MVP en base a los componentes, relaciones entre si y capas que te adjunto a continuación. | TP6 |
 
 ## TP5 – Construcción del MVP
 
